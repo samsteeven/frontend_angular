@@ -12,6 +12,7 @@ describe('Header', () => {
     })
     .compileComponents();
 
+    
     fixture = TestBed.createComponent(Header);
     component = fixture.componentInstance;
     await fixture.whenStable();
