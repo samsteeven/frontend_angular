@@ -2,11 +2,12 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
-    "medicam-web": {
+    "medi-find": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -25,7 +26,6 @@
               }
             ],
             "styles": [
-              "src/custom-theme.scss",
               "src/styles.css"
             ]
           },
@@ -57,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "medicam-web:build:production"
+              "buildTarget": "medi-find:build:production"
             },
             "development": {
-              "buildTarget": "medicam-web:build:development"
+              "buildTarget": "medi-find:build:development"
             }
           },
           "defaultConfiguration": "development"

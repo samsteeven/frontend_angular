@@ -1,0 +1,74 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2>Connexion</h2>
+      <p>Connectez-vous à votre compte MediFind</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          placeholder="votre@email.com"
+          [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          <div class="error-message">
+            @if (loginForm.get('email')?.errors?.['required']) {
+              <span>L'email est requis</span>
+            }
+            @if (loginForm.get('email')?.errors?.['email']) {
+              <span>Format d'email invalide</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          placeholder="Votre mot de passe"
+          [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <div class="error-message">
+            @if (loginForm.get('password')?.errors?.['required']) {
+              <span>Le mot de passe est requis</span>
+            }
+            @if (loginForm.get('password')?.errors?.['minlength']) {
+              <span>Minimum {{loginForm.get('password')?.errors?.['minlength']?.requiredLength}} caractères</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-options">
+        <label class="checkbox">
+          <input type="checkbox" formControlName="rememberMe">
+          <span class="checkmark"></span>
+          Se souvenir de moi
+        </label>
+        <a href="#" class="forgot-password">Mot de passe oublié ?</a>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" [disabled]="loginForm.invalid || isLoading">
+        @if (!isLoading) {
+          <span>Se connecter</span>
+        }
+        @if (isLoading) {
+          <span>Connexion...</span>
+        }
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Pas encore de compte ? <a routerLink="/register" class="auth-link">Créer un compte</a></p>
+    </div>
+  </div>
+</div>
