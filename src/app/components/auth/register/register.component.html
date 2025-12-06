@@ -1,0 +1,136 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">
+        <i class="fas fa-pills"></i>
+        <span>MediFind</span>
+      </div>
+      <h2>Créer un compte</h2>
+      <p>Rejoignez notre communauté</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Prénom</label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            class="form-control"
+            placeholder="Votre prénom">
+          @if (registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
+            <div class="error-message">Le prénom est requis</div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Nom</label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            class="form-control"
+            placeholder="Votre nom">
+          @if (registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched) {
+            <div class="error-message">Le nom est requis</div>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          placeholder="votre@email.com">
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <div class="error-message">
+            @if (registerForm.get('email')?.errors?.['required']) {
+              <span>L'email est requis</span>
+            }
+            @if (registerForm.get('email')?.errors?.['email']) {
+              <span>Format d'email invalide</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Téléphone</label>
+        <input
+          type="tel"
+          id="phone"
+          formControlName="phone"
+          class="form-control"
+          placeholder="Votre numéro">
+        @if (registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched) {
+          <div class="error-message">Le numéro est requis</div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          placeholder="Créez un mot de passe">
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <div class="error-message">
+            @if (registerForm.get('password')?.errors?.['required']) {
+              <span>Le mot de passe est requis</span>
+            }
+            @if (registerForm.get('password')?.errors?.['minlength']) {
+              <span>Minimum 6 caractères</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirmer le mot de passe</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          class="form-control"
+          placeholder="Confirmez votre mot de passe">
+        @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
+          <div class="error-message">
+            @if (registerForm.get('confirmPassword')?.errors?.['required']) {
+              <span>La confirmation est requise</span>
+            }
+            @if (registerForm.hasError('passwordMismatch')) {
+              <span>Les mots de passe ne correspondent pas</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-options">
+        <label class="checkbox">
+          <input type="checkbox" formControlName="acceptTerms">
+          <span class="checkmark"></span>
+          J'accepte les <a href="#" class="link">conditions d'utilisation</a>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" [disabled]="registerForm.invalid || isLoading">
+        @if (!isLoading) {
+          <span>Créer mon compte</span>
+        }
+        @if (isLoading) {
+          <span>Création en cours...</span>
+        }
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Déjà un compte ? <a routerLink="/login" class="auth-link">Se connecter</a></p>
+    </div>
+  </div>
+</div>
