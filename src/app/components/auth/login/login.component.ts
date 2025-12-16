@@ -1,38 +1,54 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService, LoginRequest } from '@services';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  //styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
+export class LoginComponent {
+
+  loginData: LoginRequest = {
+    email: '',
+    password: ''
+  };
+
+  showPassword = false;
   isLoading = false;
+  errorMessage = '';
 
   constructor(
-    private fb: FormBuilder,
+    private authService: AuthService,
     private router: Router
-  ) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false]
+  ) { }
+
+  onSubmit() {
+    if (!this.loginData.email || !this.loginData.password) {
+      this.errorMessage = 'Veuillez remplir tous les champs';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.authService.login(this.loginData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.authService.redirectBasedOnRole();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = error.error?.message || 'Échec de la connexion. Vérifiez vos identifiants.';
+      }
     });
   }
 
-  ngOnInit(): void {}
-
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.isLoading = true;
-      setTimeout(() => {
-        this.isLoading = false;
-        this.router.navigate(['/dashboard']);
-      }, 2000);
-    }
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }

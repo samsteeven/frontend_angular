@@ -1,136 +1,141 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <div class="auth-header">
-      <div class="logo">
-        <i class="fas fa-pills"></i>
-        <span>MediFind</span>
+<div class="min-h-screen bg-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
+    <div class="flex justify-center mb-6">
+      <div class="rounded-xl bg-indigo-600 p-3 shadow-lg">
+        <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        </svg>
       </div>
-      <h2>Créer un compte</h2>
-      <p>Rejoignez notre communauté</p>
     </div>
+    <h2 class="mt-2 text-center text-3xl font-extrabold text-gray-900">
+      Inscription {{getRoleLabel()}}
+    </h2>
+    <p class="mt-2 text-center text-sm text-gray-600">
+      Rejoignez MediFind dès aujourd'hui
+    </p>
+  </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="firstName">Prénom</label>
-          <input
-            type="text"
-            id="firstName"
-            formControlName="firstName"
-            class="form-control"
-            placeholder="Votre prénom">
-          @if (registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
-            <div class="error-message">Le prénom est requis</div>
-          }
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-2xl">
+    <div class="bg-white py-8 px-4 shadow-2xl shadow-gray-300 sm:rounded-xl sm:px-10 border border-gray-200">
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+        <!-- Grid: Prénom & Nom -->
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Prénom</label>
+            <div class="mt-1">
+              <input type="text" formControlName="firstName"
+                class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Nom</label>
+            <div class="mt-1">
+              <input type="text" formControlName="lastName"
+                class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="lastName">Nom</label>
-          <input
-            type="text"
-            id="lastName"
-            formControlName="lastName"
-            class="form-control"
-            placeholder="Votre nom">
-          @if (registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched) {
-            <div class="error-message">Le nom est requis</div>
-          }
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <div class="mt-1">
+            <input type="email" formControlName="email"
+              class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          formControlName="email"
-          class="form-control"
-          placeholder="votre@email.com">
-        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-          <div class="error-message">
-            @if (registerForm.get('email')?.errors?.['required']) {
-              <span>L'email est requis</span>
-            }
-            @if (registerForm.get('email')?.errors?.['email']) {
-              <span>Format d'email invalide</span>
-            }
+        <!-- Grid: Téléphone & Ville -->
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Téléphone</label>
+            <div class="mt-1">
+              <input type="tel" formControlName="phone"
+                class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
           </div>
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="phone">Téléphone</label>
-        <input
-          type="tel"
-          id="phone"
-          formControlName="phone"
-          class="form-control"
-          placeholder="Votre numéro">
-        @if (registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched) {
-          <div class="error-message">Le numéro est requis</div>
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="password">Mot de passe</label>
-        <input
-          type="password"
-          id="password"
-          formControlName="password"
-          class="form-control"
-          placeholder="Créez un mot de passe">
-        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-          <div class="error-message">
-            @if (registerForm.get('password')?.errors?.['required']) {
-              <span>Le mot de passe est requis</span>
-            }
-            @if (registerForm.get('password')?.errors?.['minlength']) {
-              <span>Minimum 6 caractères</span>
-            }
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Ville</label>
+            <div class="mt-1">
+              <input type="text" formControlName="city"
+                class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
           </div>
-        }
-      </div>
+        </div>
 
-      <div class="form-group">
-        <label for="confirmPassword">Confirmer le mot de passe</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          formControlName="confirmPassword"
-          class="form-control"
-          placeholder="Confirmez votre mot de passe">
-        @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
-          <div class="error-message">
-            @if (registerForm.get('confirmPassword')?.errors?.['required']) {
-              <span>La confirmation est requise</span>
-            }
-            @if (registerForm.hasError('passwordMismatch')) {
-              <span>Les mots de passe ne correspondent pas</span>
-            }
+        <!-- Grid: Mot de passe -->
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+          <div class="relative">
+            <label class="block text-sm font-medium text-gray-700">Mot de passe</label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                class="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10">
+              <button type="button" (click)="togglePassword()"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-400 hover:text-indigo-600">
+                <i [class]="showPassword ? 'far fa-eye-slash' : 'far fa-eye'"></i>
+              </button>
+            </div>
           </div>
-        }
-      </div>
 
-      <div class="form-options">
-        <label class="checkbox">
-          <input type="checkbox" formControlName="acceptTerms">
-          <span class="checkmark"></span>
-          J'accepte les <a href="#" class="link">conditions d'utilisation</a>
-        </label>
-      </div>
+          <div class="relative">
+            <label class="block text-sm font-medium text-gray-700">Confirmation</label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword"
+                class="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10">
+              <button type="button" (click)="toggleConfirmPassword()"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-400 hover:text-indigo-600">
+                <i [class]="showConfirmPassword ? 'far fa-eye-slash' : 'far fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
 
-      <button type="submit" class="btn btn-primary btn-full" [disabled]="registerForm.invalid || isLoading">
-        @if (!isLoading) {
-          <span>Créer mon compte</span>
-        }
-        @if (isLoading) {
-          <span>Création en cours...</span>
-        }
-      </button>
-    </form>
+        <!-- Terms -->
+        <div class="flex items-center">
+          <input id="accept-terms" type="checkbox" formControlName="acceptTerms"
+            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer">
+          <label for="accept-terms" class="ml-2 block text-sm text-gray-900 cursor-pointer">
+            J'accepte les <a href="#" class="text-indigo-600 hover:text-indigo-500 font-medium">CGU</a>
+          </label>
+        </div>
 
-    <div class="auth-footer">
-      <p>Déjà un compte ? <a routerLink="/login" class="auth-link">Se connecter</a></p>
+        <div>
+          <button type="submit" [disabled]="registerForm.invalid || isLoading"
+            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+              fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            {{ isLoading ? 'Création...' : 'Créer mon compte' }}
+          </button>
+        </div>
+
+        <div class="mt-6">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-white text-gray-500">
+                Déjà un compte ?
+              </span>
+            </div>
+          </div>
+          <div class="mt-6 grid grid-cols-1 gap-3">
+            <a [routerLink]="['/login']"
+              class="w-full inline-flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              Se connecter
+            </a>
+          </div>
+        </div>
+
+      </form>
     </div>
   </div>
 </div>
