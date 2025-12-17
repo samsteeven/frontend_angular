@@ -1,0 +1,60 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 px-4 py-12">
+  <div class="max-w-4xl w-full">
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-bold text-white mb-4">Choisissez votre profil</h1>
+      <p class="text-xl text-blue-100">Sélectionnez le type de compte que vous souhaitez créer</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Client -->
+      <div (click)="selectRole('client')"
+        class="bg-white rounded-2xl shadow-2xl p-8 cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-3xl">
+        <div class="text-center">
+          <div class="inline-block p-6 bg-blue-100 rounded-full mb-6">
+            <i class="fas fa-user text-6xl text-blue-600"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">Client</h3>
+          <p class="text-gray-600 mb-6">
+            Créez un compte client pour soumettre vos reçus et suivre vos remboursements.
+          </p>
+          <ul class="text-left text-sm text-gray-600 space-y-2 mb-6">
+            <li><i class="fas fa-check text-green-500 mr-2"></i>Soumettre des reçus</li>
+            <li><i class="fas fa-check text-green-500 mr-2"></i>Suivre vos remboursements</li>
+            <li><i class="fas fa-check text-green-500 mr-2"></i>Historique des transactions</li>
+          </ul>
+          <button class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+            S'inscrire comme Client
+          </button>
+        </div>
+      </div>
+
+      <!-- Collecteur -->
+      <div (click)="selectRole('collecteur')"
+        class="bg-white rounded-2xl shadow-2xl p-8 cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-3xl">
+        <div class="text-center">
+          <div class="inline-block p-6 bg-purple-100 rounded-full mb-6">
+            <i class="fas fa-briefcase text-6xl text-purple-600"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">Collecteur</h3>
+          <p class="text-gray-600 mb-6">
+            Rejoignez notre équipe de collecteurs et gérez les reçus des clients.
+          </p>
+          <ul class="text-left text-sm text-gray-600 space-y-2 mb-6">
+            <li><i class="fas fa-check text-green-500 mr-2"></i>Collecter les reçus</li>
+            <li><i class="fas fa-check text-green-500 mr-2"></i>Valider les documents</li>
+            <li><i class="fas fa-check text-green-500 mr-2"></i>Suivi des performances</li>
+          </ul>
+          <button class="w-full py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition">
+            S'inscrire comme Collecteur
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-8">
+      <p class="text-white mb-4">Déjà un compte ?</p>
+      <a routerLink="/login" class="text-white hover:text-blue-100 font-semibold text-lg">
+        <i class="fas fa-sign-in-alt mr-2"></i>Se connecter
+      </a>
+    </div>
+  </div>
+</div>
