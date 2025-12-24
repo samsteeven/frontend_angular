@@ -1,198 +1,83 @@
-<div class="p-6 animate-fadeIn">
-  <!-- En-tête -->
-  <div class="flex items-center justify-between mb-8">
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-      <p class="text-gray-600 mt-1">Vue d'ensemble de la plateforme</p>
+      <h1 class="text-2xl font-bold text-gray-900">Tableau de bord</h1>
+      <p class="mt-1 text-sm text-gray-500">Vue d'ensemble de l'administration système.</p>
     </div>
-    <div class="flex items-center gap-4">
-      <button class="btn btn-outline flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        Exporter
+    <div class="flex gap-3">
+      <button
+        class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+        <i class="fas fa-download mr-2"></i> Exporter
       </button>
-      <div class="relative">
-        <div
-          class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold cursor-pointer">
-          {{getUserInitials()}}
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- Statistiques -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="card p-6">
-      <div class="flex items-center justify-between mb-4">
-        <div class="p-3 bg-blue-100 rounded-lg">
-          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a6 6 0 01-9 5.197" />
-          </svg>
-        </div>
-        <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-          Total
-        </span>
-      </div>
-      <h3 class="text-2xl font-bold text-gray-900 mb-1">{{stats?.totalUsers || 0}}</h3>
-      <p class="text-gray-600 text-sm">Utilisateurs</p>
-    </div>
-
-    <div class="card p-6">
-      <div class="flex items-center justify-between mb-4">
-        <div class="p-3 bg-green-100 rounded-lg">
-          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-        </div>
-        <span class="text-xs font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">
-          Clients
-        </span>
-      </div>
-      <h3 class="text-2xl font-bold text-gray-900 mb-1">{{stats?.totalClients || 0}}</h3>
-      <p class="text-gray-600 text-sm">Clients actifs</p>
-    </div>
-
-    <div class="card p-6">
-      <div class="flex items-center justify-between mb-4">
-        <div class="p-3 bg-purple-100 rounded-lg">
-          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-        </div>
-        <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
-          Collecteurs
-        </span>
-      </div>
-      <h3 class="text-2xl font-bold text-gray-900 mb-1">{{stats?.totalCollecteurs || 0}}</h3>
-      <p class="text-gray-600 text-sm">En activité</p>
-    </div>
-
-    <div class="card p-6">
-      <div class="flex items-center justify-between mb-4">
-        <div class="p-3 bg-orange-100 rounded-lg">
-          <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        </div>
-        <span class="text-xs font-semibold text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
-          Reçus
-        </span>
-      </div>
-      <h3 class="text-2xl font-bold text-gray-900 mb-1">{{stats?.totalRecus || 0}}</h3>
-      <p class="text-gray-600 text-sm">Traités ce mois</p>
-    </div>
-  </div>
-
-  <!-- Actions rapides et activités -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Actions rapides -->
-    <div class="card p-6 lg:col-span-1">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h3>
-      <div class="space-y-3">
-        <a routerLink="/admin/users"
-          class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors group">
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-blue-100 rounded-lg">
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a6 6 0 01-9 5.197" />
-              </svg>
-            </div>
-            <span class="font-medium text-gray-900">Gérer les utilisateurs</span>
-          </div>
-          <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-
-        <a routerLink="/admin/collecteurs"
-          class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors group">
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-purple-100 rounded-lg">
-              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <span class="font-medium text-gray-900">Gérer les collecteurs</span>
-          </div>
-          <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-
-        <a routerLink="/admin/clients"
-          class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors group">
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-green-100 rounded-lg">
-              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <span class="font-medium text-gray-900">Voir les clients</span>
-          </div>
-          <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-
-        <a routerLink="/admin/rapports"
-          class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors group">
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-orange-100 rounded-lg">
-              <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <span class="font-medium text-gray-900">Générer rapports</span>
-          </div>
-          <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-      </div>
-    </div>
-
-    <!-- Activités récentes -->
-    <div class="card p-6 lg:col-span-2">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-lg font-semibold text-gray-900">Activités récentes</h3>
-        <button class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-          Voir tout
-        </button>
-      </div>
-
-      <div class="space-y-4">
-        <div *ngFor="let activity of recentActivities"
-          class="flex items-start gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors">
-          <div [ngClass]="activity.color" class="p-3 rounded-lg">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path *ngIf="activity.type === 'user'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              <path *ngIf="activity.type === 'receipt'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              <path *ngIf="activity.type === 'check'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Users -->
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a6 6 0 01-9 5.197" />
             </svg>
           </div>
-          <div class="flex-1">
-            <p class="font-medium text-gray-900">{{activity.title}}</p>
-            <p class="text-sm text-gray-600 mt-1">{{activity.description}}</p>
-            <p class="text-xs text-gray-400 mt-2">{{activity.time}}</p>
+          <div class="ml-4">
+            <h2 class="text-sm font-medium text-gray-500">Total Utilisateurs</h2>
+            <p class="text-lg font-semibold text-gray-900 mt-1">{{stats?.totalUsers || 0}}</p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Pharmacies -->
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-green-100 text-green-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <h2 class="text-sm font-medium text-gray-500">Pharmacies Actives</h2>
+            <p class="text-lg font-semibold text-gray-900 mt-1">{{stats?.totalPharmacies || 0}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Approvals -->
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-orange-100 text-orange-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <h2 class="text-sm font-medium text-gray-500">En Attente Validation</h2>
+            <p class="text-lg font-semibold text-gray-900 mt-1">{{stats?.pendingPharmacies || 0}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity / Content Placeholder -->
+  <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+    <div class="p-6 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900">Activités Récentes</h3>
+    </div>
+    <div class="p-6">
+      <div class="text-center py-8 text-gray-500">
+        <p>Aucune activité récente à afficher.</p>
       </div>
     </div>
   </div>

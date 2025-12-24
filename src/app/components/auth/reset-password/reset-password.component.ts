@@ -1,18 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../../services/auth.service';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AuthService } from '@services';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faLock, faCircleNotch, faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FontAwesomeModule],
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.css']
 })
 
 export class ResetPasswordComponent implements OnInit {
+  // Icons
+  faLock = faLock;
+  faCircleNotch = faCircleNotch;
+  faCheck = faCheck;
+  faExclamationCircle = faExclamationCircle;
   resetForm: FormGroup;
   loading = false;
   errorMessage = '';

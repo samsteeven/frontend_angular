@@ -1,0 +1,280 @@
+<div class="px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="sm:flex sm:items-center sm:justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Catalogue de Médicaments</h1>
+            <p class="mt-1 text-sm text-gray-500">Recherchez et ajoutez des médicaments à votre inventaire</p>
+        </div>
+        <div class="mt-4 sm:mt-0 flex gap-3">
+            <button (click)="openCreateModal()"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                <i class="fas fa-plus mr-2"></i> Créer un médicament
+            </button>
+            <button (click)="goToInventory()"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i> Retour à l'inventaire
+            </button>
+        </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search -->
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()"
+                        placeholder="Nom du médicament..."
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                </div>
+            </div>
+
+            <!-- Therapeutic Class -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Classe thérapeutique</label>
+                <select [(ngModel)]="selectedClass" (change)="onFilter()"
+                    class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:ring-green-500 focus:border-green-500">
+                    <option value="">Toutes les classes</option>
+                    <option *ngFor="let class of therapeuticClasses" [value]="class">{{ class }}</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between">
+            <label class="flex items-center">
+                <input type="checkbox" [(ngModel)]="prescriptionOnly" (change)="onFilter()"
+                    class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                <span class="ml-2 text-sm text-gray-700">Ordonnance requise uniquement</span>
+            </label>
+
+            <button (click)="onFilter()"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                <i class="fas fa-filter mr-2"></i> Filtrer
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="text-center py-12">
+        <i class="fas fa-spinner fa-spin text-4xl text-green-600"></i>
+        <p class="mt-2 text-gray-500">Chargement...</p>
+    </div>
+
+    <!-- Medications Grid -->
+    <div *ngIf="!loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let med of medications"
+            class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-start">
+                <h3 class="font-semibold text-gray-900 text-lg">{{ med.name }}</h3>
+                <span *ngIf="med.requiresPrescription"
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    <i class="fas fa-prescription mr-1"></i> Ordonnance
+                </span>
+                <span *ngIf="!med.requiresPrescription"
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Libre
+                </span>
+            </div>
+
+            <!-- Card Body -->
+            <div class="px-4 py-4">
+                <p *ngIf="med.genericName" class="text-sm text-gray-600 mb-2">
+                    <strong>Générique:</strong> {{ med.genericName }}
+                </p>
+                <p *ngIf="med.dosage" class="text-sm text-gray-600 mb-2">
+                    <strong>Dosage:</strong> {{ med.dosage }}
+                </p>
+                <p class="text-sm text-gray-600 mb-2">
+                    <strong>Classe:</strong> {{ med.therapeuticClass }}
+                </p>
+                <p class="text-sm text-gray-500 line-clamp-3">{{ med.description }}</p>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                <button (click)="openAddToInventoryModal(med)"
+                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                    <i class="fas fa-plus mr-2"></i> Ajouter à mon inventaire
+                </button>
+            </div>
+        </div>
+
+        <!-- No Results -->
+        <div *ngIf="medications.length === 0" class="col-span-full text-center py-12">
+            <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+            <p class="text-gray-500">Aucun médicament trouvé</p>
+            <button (click)="openCreateModal()"
+                class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                <i class="fas fa-plus mr-2"></i> Créer ce médicament
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add to Inventory Modal (Premium Design) -->
+<div *ngIf="showAddModal && selectedMedication" class="fixed inset-0 z-[9999] overflow-y-auto"
+    aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" (click)="closeModal()"></div>
+
+    <div class="flex min-h-full items-center justify-center p-4 text-center">
+        <div
+            class="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all border border-gray-100">
+
+            <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center h-10 w-10 rounded-full bg-green-100">
+                        <i class="fas fa-pills text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold leading-6 text-gray-900">Ajouter à l'inventaire</h3>
+                </div>
+                <button (click)="closeModal()" class="text-gray-400 hover:text-gray-500 transition-colors">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <div class="px-6 py-6">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 font-semibold">{{ selectedMedication.name }}</p>
+                    <p class="text-xs text-gray-400">{{ selectedMedication.therapeuticClass }}</p>
+                </div>
+
+                <form (ngSubmit)="addToInventory()" class="space-y-5">
+                    <!-- Price -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Prix de vente (XAF) *</label>
+                        <input type="number" [(ngModel)]="addPrice" name="price" min="0" step="100" required
+                            class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-green-500 focus:ring-green-500 sm:text-sm transition-colors">
+                    </div>
+
+                    <!-- Stock -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Stock initial *</label>
+                        <input type="number" [(ngModel)]="addStock" name="stock" min="0" required
+                            class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-green-500 focus:ring-green-500 sm:text-sm transition-colors">
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
+                        <button type="button" (click)="closeModal()"
+                            class="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                            Annuler
+                        </button>
+                        <button type="submit" [disabled]="isAdding || addPrice <= 0"
+                            class="inline-flex justify-center rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-colors disabled:opacity-50">
+                            <span *ngIf="!isAdding">Ajouter</span>
+                            <span *ngIf="isAdding"><i class="fas fa-spinner fa-spin mr-2"></i> Ajout...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Medication Modal (Premium Design) -->
+<div *ngIf="showCreateModal" class="fixed inset-0 z-[9999] overflow-y-auto" aria-labelledby="create-modal-title"
+    role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" (click)="closeCreateModal()"></div>
+
+    <div class="flex min-h-full items-center justify-center p-4 text-center">
+        <div
+            class="relative w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all border border-gray-100">
+
+            <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100">
+                        <i class="fas fa-capsules text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold leading-6 text-gray-900">Créer un nouveau médicament</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Ce médicament sera ajouté au catalogue global</p>
+                    </div>
+                </div>
+                <button (click)="closeCreateModal()" class="text-gray-400 hover:text-gray-500 transition-colors">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <div class="px-6 py-6">
+                <form (ngSubmit)="createMedication()" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Name -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nom du médicament *</label>
+                            <input type="text" [(ngModel)]="newMedication.name" name="name" required
+                                class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors"
+                                placeholder="Paracétamol">
+                        </div>
+
+                        <!-- Generic Name -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nom générique</label>
+                            <input type="text" [(ngModel)]="newMedication.genericName" name="genericName"
+                                class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors"
+                                placeholder="Acétaminophène">
+                        </div>
+
+                        <!-- Therapeutic Class -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Classe thérapeutique *</label>
+                            <div class="relative">
+                                <select [(ngModel)]="newMedication.therapeuticClass" name="therapeuticClass" required
+                                    class="block w-full appearance-none rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
+                                    <option value="">Sélectionner une classe</option>
+                                    <option *ngFor="let class of therapeuticClasses" [value]="class">{{ class }}
+                                    </option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dosage -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Dosage</label>
+                            <input type="text" [(ngModel)]="newMedication.dosage" name="dosage" placeholder="500mg"
+                                class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea [(ngModel)]="newMedication.description" name="description" rows="3"
+                            class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors"
+                            placeholder="Description du médicament..."></textarea>
+                    </div>
+
+                    <!-- Requires Prescription -->
+                    <div class="flex items-center">
+                        <input type="checkbox" [(ngModel)]="newMedication.requiresPrescription"
+                            name="requiresPrescription"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label class="ml-2 block text-sm text-gray-700">Nécessite une ordonnance</label>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
+                        <button type="button" (click)="closeCreateModal()"
+                            class="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                            Annuler
+                        </button>
+                        <button type="submit"
+                            [disabled]="isCreating || !newMedication.name || !newMedication.therapeuticClass"
+                            class="inline-flex justify-center rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors disabled:opacity-50">
+                            <span *ngIf="!isCreating">Créer et ajouter à l'inventaire</span>
+                            <span *ngIf="isCreating"><i class="fas fa-spinner fa-spin mr-2"></i> Création...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

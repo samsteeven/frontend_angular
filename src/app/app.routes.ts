@@ -1,94 +1,99 @@
 import { Routes } from '@angular/router';
-import { LandingPageComponent } from '@components/landing-page/landing-page.component';
 import { LoginComponent } from '@components/auth/login/login.component';
 import { RegisterComponent } from '@components/auth/register/register.component';
-import { RoleSelectComponent } from '@components/auth/role-select/role-select.component';
 import { ForgotPasswordComponent } from '@components/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from '@components/auth/reset-password/reset-password.component';
 
 // Layouts
 import { AdminLayoutComponent } from '@components/shared/layouts/admin-layout.component';
-import { ClientLayoutComponent } from '@components/shared/layouts/client.layout.component';
-import { CollecteurLayoutComponent } from '@components/shared/layouts/collecteur.component';
 
 // Admin Components
 import { AdminDashboardComponent } from '@components/admin/dashboard/admin-dashboard.component';
 import { UsersListComponent } from '@components/admin/users-list/users-list';
-import { CollecteursListComponent } from '@components/admin/collecteurs/collecteurs-list.component';
-import { ClientsListComponent } from '@components/admin/clients/clients-list.component';
+import { PharmacyApprovalComponent } from '@components/admin/pharmacies/pharmacy-approval.component';
+import { PharmacyDetailComponent } from '@components/admin/pharmacies/pharmacy-detail.component';
+// import { ClientsListComponent } from '@components/admin/clients/clients-list.component'; 
+
+// Pharmacy Components
+import { PharmacyAdminLayoutComponent } from '@components/shared/layouts/pharmacy-admin-layout.component';
+import { PharmacyDashboardComponent } from '@components/pharmacy/dashboard/pharmacy-dashboard.component';
+import { EmployeeManagementComponent } from '@components/pharmacy/employee-management/employee-management.component';
+import { CreatePharmacyComponent } from '@components/pharmacy/create-pharmacy/create-pharmacy.component';
+import { OrderManagementComponent } from '@components/pharmacy/orders/order-management.component';
+import { DeliveryManagementComponent } from '@components/pharmacy/deliveries/delivery-management.component';
 
 // Profile Component
 import { ProfileComponent } from '@components/profile/profile';
 
+// Error Components
+import { NotFoundComponent } from '@components/errors/not-found.component';
+
 // Guards
-import { authGuard, adminGuard, clientGuard, collecteurGuard } from '@guards';
+import { authGuard, superAdminGuard, pharmacyAdminGuard, pharmacyStaffGuard, guestGuard } from '@guards';
+import { InventoryManagementComponent } from '@components/pharmacy/inventory-management/inventory-management.component';
 
 export const routes: Routes = [
-  // Routes publiques
-  { path: '', component: LandingPageComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register/select', component: RoleSelectComponent },
-  { path: 'register/:role', component: RegisterComponent },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
+  // Default route - redirect to login
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  // Routes ADMIN
+  // Public routes (Protected by guestGuard)
+  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
+  { path: 'register/:role', component: RegisterComponent, canActivate: [guestGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
+  { path: 'reset-password', component: ResetPasswordComponent, canActivate: [guestGuard] },
+
+  // Routes SUPER_ADMIN
   {
     path: 'admin',
     component: AdminLayoutComponent,
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, superAdminGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },
-      { path: 'profile', component: ProfileComponent },
       { path: 'users', component: UsersListComponent },
-      { path: 'collecteurs', component: CollecteursListComponent },
-      { path: 'clients', component: ClientsListComponent }
+      { path: 'pharmacies', component: PharmacyApprovalComponent },
+      { path: 'pharmacies/:id', component: PharmacyDetailComponent },
+      // { path: 'clients', component: ClientsListComponent }
     ]
   },
 
-  // Routes CLIENT
+  // Routes PHARMACY_ADMIN
   {
-    path: 'client',
-    component: ClientLayoutComponent,
-    canActivate: [authGuard, clientGuard],
+    path: 'pharmacy-admin',
+    component: PharmacyAdminLayoutComponent,
+    canActivate: [authGuard, pharmacyAdminGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      {
-        path: 'dashboard',
-        loadComponent: () => import('./components/client/dashboard/client-dashboard.component')
-          .then(m => m.ClientDashboardComponent)
-      },
-      { path: 'profile', component: ProfileComponent }
+      { path: 'dashboard', component: PharmacyDashboardComponent },
+      { path: 'create-pharmacy', component: CreatePharmacyComponent },
+      { path: 'catalog', loadComponent: () => import('./components/medication-catalog/medication-catalog.component').then(m => m.MedicationCatalogComponent) },
+      { path: 'employees', component: EmployeeManagementComponent },
+      { path: 'orders', component: OrderManagementComponent }, // Shared with staff but accessible here too
+      { path: 'inventory', component: InventoryManagementComponent },
+      // { path: 'settings', component: PharmacySettingsComponent }
     ]
   },
 
-  // Routes COLLECTEUR
+  // Routes PHARMACY_STAFF (Employees + Admins)
   {
-    path: 'collecteur',
-    component: CollecteurLayoutComponent,
-    canActivate: [authGuard, collecteurGuard],
+    path: 'pharmacy',
+    component: PharmacyAdminLayoutComponent, // Reusing layout, will hide items based on role
+    canActivate: [authGuard, pharmacyStaffGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      {
-        path: 'dashboard',
-        loadComponent: () => import('./components/collecteur/dashboard/collecteur-dashboard.component')
-          .then(m => m.CollecteurDashboardComponent)
-      },
-      { path: 'profile', component: ProfileComponent }
+      { path: 'dashboard', component: PharmacyDashboardComponent },
+      { path: 'orders', component: OrderManagementComponent },
+      { path: 'deliveries', component: DeliveryManagementComponent }
     ]
   },
 
-  // Route profile globale
+  // Global profile route
   {
     path: 'profile',
     component: ProfileComponent,
     canActivate: [authGuard]
   },
 
-  // Redirect
-  { path: 'register', redirectTo: 'register/select', pathMatch: 'full' },
-
-  // 404
-  { path: '**', redirectTo: '', pathMatch: 'full' }
+  // 404 - Not Found page
+  { path: '**', component: NotFoundComponent }
 ];

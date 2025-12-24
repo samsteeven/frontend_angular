@@ -3,25 +3,26 @@ import { CommonModule } from '@angular/common';
 //import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
-import { UserService } from '../../../services/user.service';
-import { DashboardStats } from '../../../models/user.model';
+// import { UserService } from '../../../services/user.service';
+import { AdminService } from '../../../services/admin.service';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule,/* RouterLink*/],
-  template: `
-    
-  `
+  imports: [CommonModule],
+  templateUrl: './admin-dashboard.component.html'
 })
 export class AdminDashboardComponent implements OnInit {
-  stats: DashboardStats | null = null;
+  stats: any = null;
   loading = false;
+  currentUser: any = null;
 
   constructor(
     private authService: AuthService,
-    private userService: UserService
-  ) { }
+    private adminService: AdminService
+  ) {
+    this.currentUser = this.authService.getCurrentUser();
+  }
 
   ngOnInit(): void {
     this.loadStats();
@@ -29,19 +30,16 @@ export class AdminDashboardComponent implements OnInit {
 
   loadStats(): void {
     this.loading = true;
-    this.userService.getUserStats()
+    this.adminService.getDashboardStats()
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: (stats: DashboardStats) => (this.stats = stats),
+        next: (stats: any) => (this.stats = stats),
         error: (error: any) => console.error('Erreur chargement stats:', error)
       });
   }
 
-  /* roleEntries(): [string, number][] {
-     return this.stats?.roles ? Object.entries(this.stats.roles) : [];
-   }
- 
-   logout(): void {
-     this.authService?.logout?.();
-   }*/
+  getUserInitials(): string {
+    if (!this.currentUser) return 'A';
+    return `${this.currentUser.firstName?.charAt(0) || ''}${this.currentUser.lastName?.charAt(0) || ''}`.toUpperCase();
+  }
 }

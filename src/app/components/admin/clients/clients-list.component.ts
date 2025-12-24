@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 //import { RouterLink } from '@angular/router';
-import { Client } from '../../../models/user.model';
+import { User } from '../../../models/user.model';
 
 @Component({
   selector: 'app-clients-list',
@@ -16,7 +16,7 @@ import { Client } from '../../../models/user.model';
   `
 })
 export class ClientsListComponent implements OnInit {
-  clients: Client[] = [];
+  clients: User[] = [];
   loading = true;
 
   constructor() { }

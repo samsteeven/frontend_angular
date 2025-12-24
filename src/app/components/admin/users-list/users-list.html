@@ -4,8 +4,22 @@
             <h1 class="text-3xl font-bold text-gray-900">Utilisateurs</h1>
             <p class="mt-2 text-sm text-gray-700">Liste de tous les utilisateurs enregistrés sur la plateforme.</p>
         </div>
-        <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-            <!-- Action buttons if needed -->
+        <div class="mt-4 sm:mt-0 sm:ml-4 sm:flex-none flex items-center space-x-3">
+            <!-- Role Filter -->
+            <select [(ngModel)]="selectedRole" (change)="onRoleChange()"
+                class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                <option value="">Tous les rôles</option>
+                <option value="SUPER_ADMIN">Super Admin</option>
+                <option value="PHARMACY_ADMIN">Admin Pharmacie</option>
+                <option value="PHARMACY_EMPLOYEE">Employé Pharmacie</option>
+                <option value="DELIVERY">Livreur</option>
+                <option value="PATIENT">Patient</option>
+            </select>
+
+            <button (click)="openAddModal()"
+                class="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto">
+                <i class="fas fa-plus mr-2"></i> Ajouter
+            </button>
         </div>
     </div>
     <div class="mt-8 flex flex-col">
@@ -142,54 +156,142 @@
                 </div>
             </div>
         </div>
-        <!-- Delete Modal -->
-        <div *ngIf="isDeleteModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
+        <!-- Delete Modal (Redesigned) -->
+        <div *ngIf="isDeleteModalOpen" class="fixed inset-0 z-[9999] overflow-y-auto" aria-labelledby="modal-title"
             role="dialog" aria-modal="true">
-            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" (click)="cancelDelete()">
+            </div>
 
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
-                    (click)="cancelDelete()"></div>
-
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                 <div
-                    class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
+                    class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
+
+                    <!-- Icon & Content -->
+                    <div class="bg-white px-6 pb-6 pt-6">
+                        <div class="flex items-start space-x-4">
                             <div
-                                class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                                <!-- Heroicon name: outline/exclamation -->
-                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                    aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
+                                class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-50">
+                                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
                             </div>
-                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                    Supprimer l'utilisateur
-                                </h3>
-                                <div class="mt-2">
-                                    <p class="text-sm text-gray-500">
-                                        Êtes-vous sûr de vouloir supprimer l'utilisateur <span
-                                            class="font-bold text-gray-800">{{ userToDelete?.firstName }} {{
-                                            userToDelete?.lastName }}</span> ? Cette action est irréversible.
-                                    </p>
-                                </div>
+                            <div class="mt-1 flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900">Supprimer l'utilisateur</h3>
+                                <p class="mt-2 text-sm text-gray-500 leading-relaxed">
+                                    Êtes-vous certain de vouloir supprimer <span class="font-bold text-gray-900">{{
+                                        userToDelete?.firstName }} {{ userToDelete?.lastName }}</span> ?<br>
+                                    Cette action supprimera définitivement ses accès et ses données.
+                                </p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+
+                    <!-- Footer -->
+                    <div class="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3">
                         <button type="button" (click)="performDelete()" [disabled]="isSaving"
-                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
-                            {{ isSaving ? 'Suppression...' : 'Supprimer' }}
+                            class="inline-flex w-full justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:w-auto transition-colors disabled:opacity-50">
+                            {{ isSaving ? 'Suppression...' : 'Supprimer définitivement' }}
                         </button>
                         <button type="button" (click)="cancelDelete()"
-                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            class="inline-flex w-full justify-center rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto transition-colors">
                             Annuler
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Add User Modal (Redesigned - Premium) -->
+        <div *ngIf="isAddModalOpen" class="fixed inset-0 z-[9999] overflow-y-auto" aria-labelledby="modal-title"
+            role="dialog" aria-modal="true">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" (click)="closeAddModal()">
+            </div>
+
+            <div class="flex min-h-full items-center justify-center p-4 text-center">
+                <div
+                    class="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all border border-gray-100">
+
+                    <!-- Header -->
+                    <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between bg-gray-50/50">
+                        <h3 class="text-xl font-semibold leading-6 text-gray-900">Nouvel Utilisateur</h3>
+                        <button type="button" (click)="closeAddModal()"
+                            class="text-gray-400 hover:text-gray-500 transition-colors">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Form -->
+                    <div class="px-6 py-6">
+                        <form [formGroup]="addForm" (ngSubmit)="onAddUser()" class="space-y-5">
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                                    <input type="text" formControlName="firstName"
+                                        class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors"
+                                        placeholder="Jean">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                                    <input type="text" formControlName="lastName"
+                                        class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors"
+                                        placeholder="Dupont">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" formControlName="email"
+                                    class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors"
+                                    placeholder="jean.dupont@example.com">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
+                                <div class="relative">
+                                    <select formControlName="role"
+                                        class="block w-full appearance-none rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
+                                        <option value="PHARMACY_ADMIN">Administrateur de Pharmacie</option>
+                                        <option value="SUPER_ADMIN">Super Administrateur</option>
+                                        <option value="PHARMACY_EMPLOYEE">Employé Pharmacie</option>
+                                        <option value="DELIVERY">Livreur</option>
+                                    </select>
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+                                    <input type="password" formControlName="password"
+                                        class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors"
+                                        placeholder="••••••••">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                                    <input type="text" formControlName="phone"
+                                        class="block w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors"
+                                        placeholder="+237...">
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
+                                <button type="button" (click)="closeAddModal()"
+                                    class="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                                    Annuler
+                                </button>
+                                <button type="submit" [disabled]="addForm.invalid || isSaving"
+                                    class="inline-flex justify-center rounded-lg bg-black px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-black transition-colors disabled:opacity-50">
+                                    {{ isSaving ? 'Création en cours...' : 'Créer l\'utilisateur' }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>

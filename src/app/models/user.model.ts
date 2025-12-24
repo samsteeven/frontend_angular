@@ -6,7 +6,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: UserRole | string; // Allow string for compatibility or strict it later
+  role: UserRole | string;
   phone?: string;
   address?: string;
   city?: string;
@@ -14,14 +14,19 @@ export interface User {
   longitude?: number;
   avatar?: string;
   isActive: boolean;
-  createdAt?: Date | string; // Allow string for API response compatibility
+  isVerified: boolean;
+  createdAt?: Date | string;
   updatedAt?: Date | string;
+  pharmacyId?: string; // For PHARMACY_EMPLOYEE and DELIVERY
+  pharmacyName?: string; // For PHARMACY_EMPLOYEE and DELIVERY
 }
 
 export enum UserRole {
-  ADMIN = 'ADMIN',
-  CLIENT = 'CLIENT',
-  COLLECTEUR = 'COLLECTEUR'
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  PHARMACY_ADMIN = 'PHARMACY_ADMIN',
+  PHARMACY_EMPLOYEE = 'PHARMACY_EMPLOYEE',
+  PATIENT = 'PATIENT',
+  DELIVERY = 'DELIVERY'
 }
 
 // ==========================================
@@ -38,135 +43,54 @@ export interface RegisterRequest {
   firstName: string;
   lastName: string;
   phone?: string;
-  role: UserRole;
+  role: string; // "SUPER_ADMIN", "PHARMACY_ADMIN", "PHARMACY_EMPLOYEE", etc.
+  address?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  pharmacyId?: string; // Required for PHARMACY_EMPLOYEE and DELIVERY
 }
 
+// Backend response structure
+export interface BackendAuthResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+    access_token: string;
+    refresh_token: string;
+    token_type: string;
+    expires_in: number;
+  };
+  timestamp: number;
+}
+
+// Frontend-friendly structure (for internal use)
 export interface AuthResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   user: User;
+  role: string;
   expiresIn: number;
 }
 
 export interface ForgotPasswordRequest {
   email: string;
+  // TODO: Add frontend URL if needed by backend
 }
 
 export interface ResetPasswordRequest {
   token: string;
   newPassword: string;
-  confirmPassword: string;
 }
 
-// ==========================================
-// profile.model.ts
-// ==========================================
-export interface ProfileUpdateRequest {
+export interface UpdateUserRequest {
   firstName?: string;
   lastName?: string;
   phone?: string;
-  email?: string;
-  currentPassword?: string;
-  newPassword?: string;
+  address?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
-// ==========================================
-// collecteur.model.ts
-// ==========================================
-export interface Collecteur extends User {
-  zone: string;
-  numeroMatricule: string;
-  dateEmbauche: Date;
-  statut: 'actif' | 'inactif' | 'suspendu';
-  nombreCollectes: number;
-  tauxReussite: number;
-}
-
-// ==========================================
-// client.model.ts
-// ==========================================
-export interface Client extends User {
-  adresse?: string;
-  ville?: string;
-  codePostal?: string;
-  nombreRecus: number;
-  montantTotal: number;
-}
-
-// ==========================================
-// recu.model.ts
-// ==========================================
-export interface Recu {
-  id: string;
-  numero: string;
-  clientId: string;
-  collecteurId?: string;
-  montant: number;
-  dateEmission: Date;
-  dateCollecte?: Date;
-  statut: 'en_attente' | 'en_cours' | 'collecte' | 'refuse';
-  motifRefus?: string;
-  observations?: string;
-  documents?: string[];
-}
-
-// ==========================================
-// transaction.model.ts
-// ==========================================
-export interface Transaction {
-  id: string;
-  recuId: string;
-  clientId: string;
-  collecteurId?: string;
-  montant: number;
-  type: 'collecte' | 'remboursement';
-  statut: 'en_attente' | 'validee' | 'annulee';
-  dateTransaction: Date;
-  reference: string;
-}
-
-// ==========================================
-// notification.model.ts
-// ==========================================
-export interface Notification {
-  id: string;
-  userId: string;
-  titre: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  isRead: boolean;
-  dateCreation: Date;
-  link?: string;
-}
-
-// ==========================================
-// stats.model.ts
-// ==========================================
-export interface DashboardStats {
-  totalUsers?: number;
-  totalClients?: number;
-  totalCollecteurs?: number;
-  totalRecus?: number;
-  recusEnAttente?: number;
-  recusCollectes?: number;
-  montantTotal?: number;
-  montantMoisActuel?: number;
-  tauxCollecte?: number;
-  // Répartition des utilisateurs par rôle, ex: { ADMIN: 3, CLIENT: 42 }
-  roles?: { [role: string]: number };
-}
-
-export interface ClientStats {
-  totalRecus: number;
-  recusEnAttente: number;
-  recusCollectes: number;
-  montantTotal: number;
-  dernierRecu?: Recu;
-}
-
-export interface CollecteurStats {
-  totalCollectes: number;
-  collectesMoisActuel: number;
-  montantCollecte: number;
-  tauxReussite: number;
-  prochainePaie?: Date;
-}
