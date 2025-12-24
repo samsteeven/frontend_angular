@@ -53,6 +53,7 @@ export const routes: Routes = [
       { path: 'users', component: UsersListComponent },
       { path: 'pharmacies', component: PharmacyApprovalComponent },
       { path: 'pharmacies/:id', component: PharmacyDetailComponent },
+      { path: 'global-search', loadComponent: () => import('./components/shared/global-medication-search/global-medication-search.component').then(m => m.GlobalMedicationSearchComponent) },
       // { path: 'clients', component: ClientsListComponent }
     ]
   },
@@ -67,6 +68,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: PharmacyDashboardComponent },
       { path: 'create-pharmacy', component: CreatePharmacyComponent },
       { path: 'catalog', loadComponent: () => import('./components/medication-catalog/medication-catalog.component').then(m => m.MedicationCatalogComponent) },
+      { path: 'global-search', loadComponent: () => import('./components/shared/global-medication-search/global-medication-search.component').then(m => m.GlobalMedicationSearchComponent) },
       { path: 'employees', component: EmployeeManagementComponent },
       { path: 'orders', component: OrderManagementComponent }, // Shared with staff but accessible here too
       { path: 'inventory', component: InventoryManagementComponent },

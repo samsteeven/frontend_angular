@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '@services';
 
 @Component({
   selector: 'app-admin-layout',
@@ -53,6 +53,12 @@ import { AuthService } from '../../../services/auth.service';
              class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-blue-600 transition-colors group">
             <i class="fas fa-users w-5 h-5 mr-3 text-gray-400 group-hover:text-blue-500 group-[.text-blue-600]:text-blue-600 transition-colors"></i>
             Utilisateurs
+          </a>
+
+          <a routerLink="/admin/global-search" routerLinkActive="bg-blue-50 text-blue-600" (click)="closeSidebar()"
+             class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-blue-600 transition-colors group">
+            <i class="fas fa-search w-5 h-5 mr-3 text-gray-400 group-hover:text-blue-500 group-[.text-blue-600]:text-blue-600 transition-colors"></i>
+            Recherche Globale
           </a>
 
           <a routerLink="/admin/pharmacies" routerLinkActive="bg-blue-50 text-blue-600" (click)="closeSidebar()"

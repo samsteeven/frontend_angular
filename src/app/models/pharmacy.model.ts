@@ -2,20 +2,23 @@ export type PharmacyStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
 
 export interface Pharmacy {
     id: string;
+    userId: string;
     name: string;
+    licenseNumber: string;
     address: string;
     city: string;
+    phone: string;
     latitude: number;
     longitude: number;
-    phone: string;
-    email?: string;
-    isOpen?: boolean;
+    description?: string;
+    openingHours?: string;
+    averageRating?: number;
+    ratingCount?: number;
     status: PharmacyStatus;
-    licenseNumber?: string;
     licenseDocumentUrl?: string;
-    ownerName?: string;
-    ownerId?: string;
-    createdAt?: Date;
+    validatedAt?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface PharmacyMedicationDTO {
