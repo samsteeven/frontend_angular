@@ -2,17 +2,13 @@ import { Component } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd, Event } from '@angular/router';
 import { CommonModule } from '@angular/common'; // Import CommonModule for *ngIf
 import { filter } from 'rxjs/operators';
-import { HeaderComponent } from './components/shared/header/header.component';
-import { FooterComponent } from './components/shared/footer/footer.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterOutlet],
   template: `
-    <app-header *ngIf="!isAuthPage"></app-header>
     <router-outlet></router-outlet>
-    <app-footer *ngIf="!isAuthPage"></app-footer>
   `,
   styles: [`
     :host {

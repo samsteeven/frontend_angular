@@ -1,48 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
-
-// ========== INTERFACES EXPORTÉES ==========
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-export interface RegisterRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  phone?: string;
-  role: string;
-  address?: string;
-  city?: string;
-  latitude?: number;
-  longitude?: number;
-}
-
-export interface ForgotPasswordRequest {
-  email: string;
-}
-
-export interface ResetPasswordRequest {
-  token: string;
-  newPassword: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  refreshToken: string;
-  user: any;
-  role: string;
-  expiresIn: number;
-}
+import {
+  AuthResponse,
+  BackendAuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest
+} from '../models/user.model';
 
 // ========== SERVICE ==========
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/v1';
+  private apiUrl = '/api/v1';
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -52,23 +25,41 @@ export class AuthService {
 
   // ========== AUTH METHODS ==========
   login(data: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, data)
+    return this.http.post<BackendAuthResponse>(`${this.apiUrl}/auth/login`, data)
       .pipe(
-        tap(response => this.setSession(response.user, response.token, response.refreshToken, response.role))
+        map(backendResponse => {
+          const response: AuthResponse = {
+            accessToken: backendResponse.data.access_token,
+            refreshToken: backendResponse.data.refresh_token,
+            user: backendResponse.data.user,
+            role: backendResponse.data.user.role,
+            expiresIn: backendResponse.data.expires_in
+          };
+          this.setSession(response.user, response.accessToken, response.refreshToken, response.role);
+          return response;
+        })
       );
   }
 
   register(data: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, data)
+    return this.http.post<BackendAuthResponse>(`${this.apiUrl}/auth/register`, data)
       .pipe(
-        tap(response => this.setSession(response.user, response.token, response.refreshToken, response.role))
+        map(backendResponse => {
+          const response: AuthResponse = {
+            accessToken: backendResponse.data.access_token,
+            refreshToken: backendResponse.data.refresh_token,
+            user: backendResponse.data.user,
+            role: backendResponse.data.user.role,
+            expiresIn: backendResponse.data.expires_in
+          };
+          this.setSession(response.user, response.accessToken, response.refreshToken, response.role);
+          return response;
+        })
       );
   }
 
-
-
   logout(): void {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = this.getRefreshToken();
     if (refreshToken) {
       this.http.post(`${this.apiUrl}/auth/logout`, { refreshToken }).subscribe({
         next: () => this.doLogout(),
@@ -80,7 +71,7 @@ export class AuthService {
   }
 
   private doLogout(): void {
-    localStorage.removeItem('token');
+    localStorage.removeItem('token'); // accessToken
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     localStorage.removeItem('role');
@@ -89,13 +80,25 @@ export class AuthService {
   }
 
   forgotPassword(data: ForgotPasswordRequest): Observable<any> {
+    // Note: Backend might not support this yet, based on guide "check forgot-password flow"
     return this.http.post(`${this.apiUrl}/auth/forgot-password`, data);
   }
 
-  refreshToken(token: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/refresh-token`, { refreshToken: token })
+  refreshToken(): Observable<AuthResponse> {
+    const refreshToken = this.getRefreshToken();
+    return this.http.post<BackendAuthResponse>(`${this.apiUrl}/auth/refresh-token`, { refreshToken })
       .pipe(
-        tap(response => this.setSession(response.user, response.token, response.refreshToken, response.role))
+        map(backendResponse => {
+          const response: AuthResponse = {
+            accessToken: backendResponse.data.access_token,
+            refreshToken: backendResponse.data.refresh_token,
+            user: backendResponse.data.user,
+            role: backendResponse.data.user.role,
+            expiresIn: backendResponse.data.expires_in
+          };
+          this.setSession(response.user, response.accessToken, response.refreshToken, response.role);
+          return response;
+        })
       );
   }
 
@@ -104,8 +107,9 @@ export class AuthService {
   }
 
   getProfile(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/auth/me`)
+    return this.http.get<any>(`${this.apiUrl}/users/me`)
       .pipe(
+        map(response => response.data), // Unwrap the response
         tap(user => {
           this.currentUserSubject.next({ ...user, role: this.getCurrentRole() });
           localStorage.setItem('user', JSON.stringify(user));
@@ -114,8 +118,8 @@ export class AuthService {
   }
 
   // ========== SESSION MANAGEMENT ==========
-  private setSession(user: any, token: string, refreshToken: string, role: string): void {
-    localStorage.setItem('token', token);
+  private setSession(user: any, accessToken: string, refreshToken: string, role: string): void {
+    localStorage.setItem('token', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('role', role);
@@ -137,6 +141,10 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
+  getRefreshToken(): string | null {
+    return localStorage.getItem('refreshToken');
+  }
+
   getCurrentUser(): any {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
@@ -156,26 +164,49 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  isAdmin(): boolean {
-    return this.getCurrentRole() === 'admin';
+  isSuperAdmin(): boolean {
+    return this.getCurrentRole() === 'SUPER_ADMIN';
   }
 
-  isCollecteur(): boolean {
-    return this.getCurrentRole() === 'collecteur';
+  isPharmacyAdmin(): boolean {
+    return this.getCurrentRole() === 'PHARMACY_ADMIN';
   }
 
-  isClient(): boolean {
-    return this.getCurrentRole() === 'client';
+  isPharmacyEmployee(): boolean {
+    return this.getCurrentRole() === 'PHARMACY_EMPLOYEE';
+  }
+
+  isPharmacyStaff(): boolean {
+    return this.isPharmacyAdmin() || this.isPharmacyEmployee();
+  }
+
+  // Get pharmacy ID for pharmacy staff
+  getUserPharmacyId(): string | undefined {
+    const user = this.getCurrentUser();
+    return user?.pharmacyId;
+  }
+
+  // Check if user has a pharmacy
+  hasPharmacy(): boolean {
+    return !!this.getUserPharmacyId();
   }
 
   // ========== ROLE BASED REDIRECT ==========
   redirectBasedOnRole(): void {
     const role = this.getCurrentRole();
-    switch (role) {
-      case 'admin': this.router.navigate(['/admin/dashboard']); break;
-      case 'collecteur': this.router.navigate(['/collecteur/dashboard']); break;
-      case 'client': this.router.navigate(['/client/dashboard']); break;
-      default: this.router.navigate(['/login']);
+    if (this.isSuperAdmin()) {
+      this.router.navigate(['/admin/dashboard']);
+    } else if (this.isPharmacyAdmin()) {
+      const pharmacyId = this.getUserPharmacyId();
+      if (pharmacyId) {
+        this.router.navigate(['/pharmacy/dashboard']);
+      } else {
+        this.router.navigate(['/pharmacy-admin/create-pharmacy']);
+      }
+    } else if (this.isPharmacyEmployee()) {
+      this.router.navigate(['/pharmacy/dashboard']);
+    } else {
+      this.router.navigate(['/login']); // Default to login
     }
   }
 }

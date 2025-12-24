@@ -2,16 +2,28 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService, LoginRequest } from '@services';
+import { AuthService } from '@services';
+import { LoginRequest } from '@models';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faEnvelope, faLock, faEye, faEyeSlash, faCircleNotch, faHeartbeat, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
   templateUrl: './login.component.html',
   //styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+
+  // Icons
+  faEnvelope = faEnvelope;
+  faLock = faLock;
+  faEye = faEye;
+  faEyeSlash = faEyeSlash;
+  faCircleNotch = faCircleNotch;
+  faHeartbeat = faHeartbeat;
+  faExclamationCircle = faExclamationCircle;
 
   loginData: LoginRequest = {
     email: '',

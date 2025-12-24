@@ -15,8 +15,10 @@ import { Router } from '@angular/router';
 })
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
+  passwordForm: FormGroup;
   isLoading = true;
   isSaving = false;
+  isSavingPassword = false;
   user: User | null = null;
   message: { type: 'success' | 'error', text: string } | null = null;
 
@@ -37,6 +39,17 @@ export class ProfileComponent implements OnInit {
       address: [''],
       city: ['']
     });
+
+    this.passwordForm = this.fb.group({
+      currentPassword: ['', Validators.required],
+      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required]
+    }, { validator: this.passwordMatchValidator });
+  }
+
+  passwordMatchValidator(g: FormGroup) {
+    return g.get('newPassword')?.value === g.get('confirmPassword')?.value
+      ? null : { mismatch: true };
   }
 
   ngOnInit(): void {
@@ -84,6 +97,32 @@ export class ProfileComponent implements OnInit {
           console.error('Error updating profile', err);
           this.isSaving = false;
           this.showMessage('error', 'Erreur lors de la mise à jour.');
+        }
+      });
+    }
+  }
+
+  onUpdatePassword(): void {
+    if (this.passwordForm.valid) {
+      this.isSavingPassword = true;
+      this.message = null;
+
+      const { currentPassword, newPassword, confirmPassword } = this.passwordForm.value;
+
+      this.userService.updatePassword({
+        oldPassword: currentPassword,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword
+      }).subscribe({
+        next: () => {
+          this.isSavingPassword = false;
+          this.passwordForm.reset();
+          this.showMessage('success', 'Mot de passe modifié avec succès !');
+        },
+        error: (err) => {
+          console.error('Error updating password', err);
+          this.isSavingPassword = false;
+          this.showMessage('error', 'Erreur lors du changement de mot de passe. Vérifiez votre mot de passe actuel.');
         }
       });
     }

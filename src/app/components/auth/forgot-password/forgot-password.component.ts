@@ -2,33 +2,26 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-//import { RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faKey, faEnvelope, faCircleNotch, faCheck, faArrowLeft, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, /*RouterLink*/],
-  template: `
-    <form [formGroup]="forgotForm" (ngSubmit)="onSubmit()" class="forgot-form">
-      <label for="email">Email</label>
-      <input id="email" formControlName="email" type="email" />
-      <div *ngIf="email?.invalid && email?.touched" class="error">
-        <div *ngIf="email?.errors?.['required']">Email requis</div>
-        <div *ngIf="email?.errors?.['email']">Email invalide</div>
-      </div>
-
-      <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
-      <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
-
-      <button type="submit" [disabled]="loading || forgotForm.invalid">
-        {{ loading ? 'Envoi...' : 'Envoyer' }}
-      </button>
-    </form>
-  `
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FontAwesomeModule],
+  templateUrl: './forgot-password.component.html'
 })
 export class ForgotPasswordComponent {
+  // Icons
+  faKey = faKey;
+  faEnvelope = faEnvelope;
+  faCircleNotch = faCircleNotch;
+  faCheck = faCheck;
+  faArrowLeft = faArrowLeft;
+  faExclamationCircle = faExclamationCircle;
   forgotForm: FormGroup;
   loading = false;
   errorMessage = '';

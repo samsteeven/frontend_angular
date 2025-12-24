@@ -68,7 +68,8 @@
               "buildTarget": "medi-find:build:production"
             },
             "development": {
-              "buildTarget": "medi-find:build:development"
+              "buildTarget": "medi-find:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
