@@ -72,7 +72,7 @@ export const routes: Routes = [
       { path: 'employees', component: EmployeeManagementComponent },
       { path: 'orders', component: OrderManagementComponent }, // Shared with staff but accessible here too
       { path: 'inventory', component: InventoryManagementComponent },
-      // { path: 'settings', component: PharmacySettingsComponent }
+      { path: 'settings', loadComponent: () => import('./components/pharmacy/settings/pharmacy-settings.component').then(m => m.PharmacySettingsComponent) }
     ]
   },
 

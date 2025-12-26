@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Pharmacy, PharmacyMedicationDTO } from '../models/pharmacy.model';
+import { Pharmacy, PharmacyMedicationDTO } from '@models';
 
 @Injectable({ providedIn: 'root' })
 export class PharmacyService {
@@ -19,6 +19,10 @@ export class PharmacyService {
 
     updateStatus(id: string, status: string): Observable<Pharmacy> {
         return this.http.patch<Pharmacy>(`${this.apiUrl}/${id}/status?status=${status}`, {});
+    }
+
+    update(id: string, data: Partial<Pharmacy>): Observable<Pharmacy> {
+        return this.http.put<Pharmacy>(`${this.apiUrl}/${id}`, data);
     }
 
     getById(id: string): Observable<Pharmacy> {

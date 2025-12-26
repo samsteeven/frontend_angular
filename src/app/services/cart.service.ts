@@ -1,99 +1,70 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { OrderItem } from '../models/order.model';
-import { PharmacyMedicationDTO } from '../models/pharmacy.model';
+import { BehaviorSubject } from 'rxjs';
+import { PatientMedicationSearchResult } from './medication-catalog.service';
 
-export interface CartState {
-    items: OrderItem[];
-    pharmacyId: string | null;
-    pharmacyName?: string;
+export interface CartItem {
+    medication: PatientMedicationSearchResult;
+    quantity: number;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+    providedIn: 'root'
+})
 export class CartService {
-    private cartSubject = new BehaviorSubject<CartState>({ items: [], pharmacyId: null });
-    public cart$ = this.cartSubject.asObservable();
+    private cartItems = new BehaviorSubject<CartItem[]>([]);
+    cartItems$ = this.cartItems.asObservable();
 
     constructor() {
-        this.loadCart();
-    }
-
-    getCart(): CartState {
-        return this.cartSubject.value;
-    }
-
-    addItem(pharmacyId: string, pharmacyName: string, product: PharmacyMedicationDTO, quantity: number = 1): void {
-        const currentCart = this.getCart();
-
-        // Check if adding from a different pharmacy
-        if (currentCart.pharmacyId && currentCart.pharmacyId !== pharmacyId) {
-            if (!confirm('Votre panier contient des articles d\'une autre pharmacie. Voulez-vous le vider pour commander dans celle-ci ?')) {
-                return;
-            }
-            this.clearCart();
+        // Load from local storage
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+            this.cartItems.next(JSON.parse(savedCart));
         }
+    }
 
-        const currentState = this.getCart(); // Re-get after potential clear
-        const items = [...currentState.items];
-        const existingItemIndex = items.findIndex(item => item.medicationId === product.medicationId);
+    addToCart(medication: PatientMedicationSearchResult, quantity: number = 1): void {
+        const currentItems = this.cartItems.value;
+        const existingItem = currentItems.find(item => item.medication.medicationId === medication.medicationId);
 
-        if (existingItemIndex > -1) {
-            items[existingItemIndex].quantity += quantity;
+        if (existingItem) {
+            existingItem.quantity += quantity;
+            this.cartItems.next([...currentItems]);
         } else {
-            items.push({
-                medicationId: product.medicationId,
-                medicationName: product.name,
-                quantity,
-                price: product.price
-            });
+            this.cartItems.next([...currentItems, { medication, quantity }]);
         }
-
-        this.updateCart({
-            items,
-            pharmacyId,
-            pharmacyName
-        });
+        this.saveToStorage();
     }
 
-    removeItem(medicationId: string): void {
-        const currentState = this.getCart();
-        const items = currentState.items.filter(item => item.medicationId !== medicationId);
-
-        if (items.length === 0) {
-            this.clearCart();
-        } else {
-            this.updateCart({ ...currentState, items });
-        }
+    removeFromCart(medicationId: string): void {
+        const currentItems = this.cartItems.value.filter(item => item.medication.medicationId !== medicationId);
+        this.cartItems.next(currentItems);
+        this.saveToStorage();
     }
 
     updateQuantity(medicationId: string, quantity: number): void {
-        const currentState = this.getCart();
-        const items = currentState.items.map(item => {
-            if (item.medicationId === medicationId) {
-                return { ...item, quantity };
+        const currentItems = this.cartItems.value;
+        const item = currentItems.find(i => i.medication.medicationId === medicationId);
+        if (item) {
+            item.quantity = quantity;
+            if (item.quantity <= 0) {
+                this.removeFromCart(medicationId);
+            } else {
+                this.cartItems.next([...currentItems]);
+                this.saveToStorage();
             }
-            return item;
-        });
-        this.updateCart({ ...currentState, items });
-    }
-
-    clearCart(): void {
-        this.updateCart({ items: [], pharmacyId: null });
-    }
-
-    private updateCart(state: CartState): void {
-        this.cartSubject.next(state);
-        localStorage.setItem('cart', JSON.stringify(state));
-    }
-
-    private loadCart(): void {
-        const savedCart = localStorage.getItem('cart');
-        if (savedCart) {
-            this.cartSubject.next(JSON.parse(savedCart));
         }
     }
 
-    getTotal(): number {
-        return this.getCart().items.reduce((total, item) => total + (item.price || 0) * item.quantity, 0);
+    clearCart(): void {
+        this.cartItems.next([]);
+        this.saveToStorage();
+    }
+
+    getTotalPrice(): number {
+        return this.cartItems.value.reduce((total, item) => total + (item.medication.price * item.quantity), 0);
+    }
+
+    private saveToStorage(): void {
+        localStorage.setItem('cart', JSON.stringify(this.cartItems.value));
     }
 }
