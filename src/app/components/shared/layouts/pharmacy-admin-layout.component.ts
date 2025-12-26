@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@services';
+import { PharmacyService } from '../../../services/pharmacy.service';
 
 @Component({
   selector: 'app-pharmacy-admin-layout',
@@ -33,7 +34,7 @@ import { AuthService } from '@services';
         <div class="hidden md:flex h-16 items-center px-6 border-b border-gray-200">
           <div class="flex items-center gap-2 text-green-600">
             <i class="fas fa-prescription-bottle-alt text-2xl"></i>
-            <span class="text-xl font-bold tracking-tight text-gray-900">Ma Pharmacie</span>
+            <span class="text-xl font-bold tracking-tight text-gray-900">{{ pharmacyName || 'Ma Pharmacie' }}</span>
           </div>
         </div>
 
@@ -140,12 +141,35 @@ import { AuthService } from '@services';
     </div>
   `
 })
-export class PharmacyAdminLayoutComponent {
+export class PharmacyAdminLayoutComponent implements OnInit {
   isSidebarOpen = false;
   currentUser: any = null;
+  pharmacyName: string = '';
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private pharmacyService: PharmacyService
+  ) {
     this.currentUser = this.authService.getCurrentUser();
+  }
+
+  ngOnInit(): void {
+    this.loadPharmacyName();
+  }
+
+  loadPharmacyName(): void {
+    const pharmacyId = this.authService.getUserPharmacyId();
+    if (pharmacyId) {
+      this.pharmacyService.getById(pharmacyId).subscribe({
+        next: (pharmacy) => {
+          this.pharmacyName = pharmacy.name;
+        },
+        error: (err: any) => {
+          console.error('Error loading pharmacy name', err);
+          this.pharmacyName = 'Ma Pharmacie';
+        }
+      });
+    }
   }
 
   toggleSidebar() {

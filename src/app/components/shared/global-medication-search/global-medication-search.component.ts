@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MedicationCatalogService, PatientMedicationSearchResult } from '@services/medication-catalog.service';
+import { MedicationCatalogService, PatientMedicationSearchResult } from '../../../services/medication-catalog.service';
 
 @Component({
     selector: 'app-global-medication-search',
