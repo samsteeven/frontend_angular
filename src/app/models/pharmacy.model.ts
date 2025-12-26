@@ -10,6 +10,8 @@ export interface Pharmacy {
     phone: string;
     latitude: number;
     longitude: number;
+    ownerName?: string;
+    email?: string;
     description?: string;
     openingHours?: string;
     averageRating?: number;

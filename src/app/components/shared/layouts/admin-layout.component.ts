@@ -66,6 +66,14 @@ import { AuthService } from '@services';
             <i class="fas fa-clinic-medical w-5 h-5 mr-3 text-gray-400 group-hover:text-blue-500 group-[.text-blue-600]:text-blue-600 transition-colors"></i>
             Pharmacies
           </a>
+
+          <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Finance</p>
+
+          <a routerLink="/admin/financial" routerLinkActive="bg-blue-50 text-blue-600" (click)="closeSidebar()"
+             class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-blue-600 transition-colors group">
+            <i class="fas fa-coins w-5 h-5 mr-3 text-gray-400 group-hover:text-blue-500 group-[.text-blue-600]:text-blue-600 transition-colors"></i>
+            Revenus & Règlements
+          </a>
         </nav>
 
         <!-- User Profile & Logout -->

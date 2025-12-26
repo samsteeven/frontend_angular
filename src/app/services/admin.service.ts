@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 import { UserService } from './user.service';
 import { PharmacyService } from './pharmacy.service';
 
@@ -9,7 +10,8 @@ export class AdminService {
 
     constructor(
         private userService: UserService,
-        private pharmacyService: PharmacyService
+        private pharmacyService: PharmacyService,
+        private http: HttpClient
     ) { }
 
     getDashboardStats(): Observable<any> {
@@ -25,5 +27,9 @@ export class AdminService {
                 };
             })
         );
+    }
+
+    getPharmacyRevenue(pharmacyId: string): Observable<any> {
+        return this.http.get<any>(`/api/v1/orders/pharmacy-stats/${pharmacyId}`);
     }
 }

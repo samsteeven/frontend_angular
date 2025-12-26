@@ -54,6 +54,7 @@ export const routes: Routes = [
       { path: 'pharmacies', component: PharmacyApprovalComponent },
       { path: 'pharmacies/:id', component: PharmacyDetailComponent },
       { path: 'global-search', loadComponent: () => import('./components/shared/global-medication-search/global-medication-search.component').then(m => m.GlobalMedicationSearchComponent) },
+      { path: 'financial', loadComponent: () => import('./components/admin/financial-dashboard/financial-dashboard.component').then(m => m.FinancialDashboardComponent) },
       // { path: 'clients', component: ClientsListComponent }
     ]
   },

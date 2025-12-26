@@ -1,0 +1,170 @@
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Tableau de Bord Financier</h1>
+            <p class="mt-1 text-sm text-gray-500">Gérez les revenus et les reversements aux pharmacies.</p>
+        </div>
+    </div>
+
+    <!-- Selection Controls -->
+    <div class="bg-white shadow sm:rounded-lg p-6">
+        <div class="max-w-xl">
+            <label for="pharmacy-select" class="block text-sm font-medium text-gray-700">Sélectionner une
+                Pharmacie</label>
+            <select id="pharmacy-select" [(ngModel)]="selectedPharmacyId" (change)="onPharmacySelect()"
+                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                <option value="">-- Choisir une pharmacie --</option>
+                <option *ngFor="let pharmacy of pharmacies" [value]="pharmacy.id">
+                    {{ pharmacy.name }} - {{ pharmacy.city }}
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Stats Display (Only if pharmacy selected) -->
+    <div *ngIf="selectedPharmacyId" class="space-y-6 fade-in">
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Total Revenue -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <dt class="text-sm font-medium text-gray-500 truncate">Chiffre d'Affaires Total</dt>
+                    <dd class="mt-1 text-3xl font-semibold text-gray-900">{{ totalRevenue | number:'1.0-0' }} FCFA</dd>
+                </div>
+            </div>
+
+            <!-- Pending Payout (Rest à Payer) -->
+            <div class="bg-white overflow-hidden shadow rounded-lg border-l-4"
+                [ngClass]="{'border-red-500': restToPay > 0, 'border-green-500': restToPay <= 0}">
+                <div class="px-4 py-5 sm:p-6">
+                    <dt class="text-sm font-medium text-gray-500 truncate">Reste à Payer (Net)</dt>
+                    <dd class="mt-1 text-3xl font-semibold text-gray-900">{{ restToPay | number:'1.0-0' }} FCFA</dd>
+                    <p *ngIf="restToPay > 0" class="text-xs text-red-600 mt-1">À régler dès que possible</p>
+                    <p *ngIf="restToPay <= 0" class="text-xs text-green-600 mt-1">À jour</p>
+                </div>
+            </div>
+
+            <!-- Transactions (Temporarily removed as API only returns Total Revenue) -->
+            <!-- <div class="bg-white overflow-hidden shadow rounded-lg"> ... </div> -->
+        </div>
+
+        <!-- Settlement Actions -->
+        <!-- Payout Management Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Create Payout Form -->
+            <div class="bg-white shadow sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Enregistrer un Règlement</h3>
+                    <form (ngSubmit)="submitPayout()">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Montant (FCFA)</label>
+                                <input type="number" [(ngModel)]="newPayout.amount" name="amount"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Méthode</label>
+                                <select [(ngModel)]="newPayout.method" name="method"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <option value="MTN_MOMO_PAYOUT">MTN Mobile Money</option>
+                                    <option value="ORANGE_MONEY_PAYOUT">Orange Money</option>
+                                    <option value="CASH_PAYOUT">Espèces / Virement</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Référence (ID
+                                    Transaction)</label>
+                                <input type="text" [(ngModel)]="newPayout.transactionReference"
+                                    name="transactionReference" placeholder="Ex: 548946513"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Notes (Optionnel)</label>
+                                <textarea [(ngModel)]="newPayout.notes" name="notes" rows="2"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                            </div>
+
+                            <div class="pt-2">
+                                <button type="submit" [disabled]="newPayout.amount <= 0"
+                                    class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
+                                    Enregistrer le Paiement
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Payout History -->
+            <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Historique des Règlements</h3>
+                </div>
+                <div class="overflow-x-auto max-h-[500px]">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Réf</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Montant</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Méthode</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr *ngFor="let payout of payouts">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ payout.processedAt | date:'shortDate' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                    {{ payout.transactionReference || '-' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold">
+                                    -{{ payout.amount | number:'1.0-0' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ payout.method }}
+                                </td>
+                            </tr>
+                            <tr *ngIf="payouts.length === 0">
+                                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    Aucun règlement enregistré.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loadingStats" class="flex justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!selectedPharmacyId" class="text-center py-12 bg-white shadow sm:rounded-lg">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune pharmacie sélectionnée</h3>
+        <p class="mt-1 text-sm text-gray-500">Commencez par sélectionner une pharmacie pour voir les détails financiers.
+        </p>
+    </div>
+</div>
