@@ -14,56 +14,63 @@
   </div>
 
   <!-- Stats Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- Users -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Revenue -->
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-indigo-100 text-indigo-600">
+            <i class="fas fa-coins w-6 h-6"></i>
+          </div>
+          <div class="ml-4">
+            <h2 class="text-sm font-medium text-gray-500">Chiffre d'Affaires</h2>
+            <p class="text-lg font-semibold text-gray-900 mt-1">{{ (globalStats?.totalRevenue || 0) | number:'1.0-0' }}
+              FCFA</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patients -->
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
       <div class="p-6">
         <div class="flex items-center">
           <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a6 6 0 01-9 5.197" />
-            </svg>
+            <i class="fas fa-users w-6 h-6"></i>
           </div>
           <div class="ml-4">
-            <h2 class="text-sm font-medium text-gray-500">Total Utilisateurs</h2>
-            <p class="text-lg font-semibold text-gray-900 mt-1">{{stats?.totalUsers || 0}}</p>
+            <h2 class="text-sm font-medium text-gray-500">Patients</h2>
+            <p class="text-lg font-semibold text-gray-900 mt-1">{{ globalStats?.totalPatients || 0 }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Pharmacies -->
+    <!-- Active Pharmacies -->
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
       <div class="p-6">
         <div class="flex items-center">
           <div class="p-3 rounded-full bg-green-100 text-green-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
+            <i class="fas fa-clinic-medical w-6 h-6"></i>
           </div>
           <div class="ml-4">
             <h2 class="text-sm font-medium text-gray-500">Pharmacies Actives</h2>
-            <p class="text-lg font-semibold text-gray-900 mt-1">{{stats?.totalPharmacies || 0}}</p>
+            <p class="text-lg font-semibold text-gray-900 mt-1">{{ globalStats?.activePharmacies || 0 }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Pending Approvals -->
+    <!-- Pending Orders -->
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
       <div class="p-6">
         <div class="flex items-center">
           <div class="p-3 rounded-full bg-orange-100 text-orange-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <i class="fas fa-shopping-cart w-6 h-6"></i>
           </div>
           <div class="ml-4">
-            <h2 class="text-sm font-medium text-gray-500">En Attente Validation</h2>
-            <p class="text-lg font-semibold text-gray-900 mt-1">{{stats?.pendingPharmacies || 0}}</p>
+            <h2 class="text-sm font-medium text-gray-500">Commandes en Attente</h2>
+            <p class="text-lg font-semibold text-gray-900 mt-1">{{ globalStats?.pendingOrders || 0 }}</p>
           </div>
         </div>
       </div>
@@ -71,13 +78,40 @@
   </div>
 
   <!-- Recent Activity / Content Placeholder -->
-  <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-    <div class="p-6 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900">Activités Récentes</h3>
+  <!-- Analytics Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Top Sold Medications -->
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+      <div class="p-6 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Médicaments les plus vendus</h3>
+      </div>
+      <div class="p-6">
+        <ul class="divide-y divide-gray-200">
+          <li *ngFor="let item of topSold" class="py-4 flex justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-900">{{ item.medicationName }}</p>
+              <p class="text-sm text-gray-500">{{ item.medicationGenericName }}</p>
+            </div>
+            <div class="text-sm text-gray-900 font-semibold">{{ item.soldCount }} ventes</div>
+          </li>
+          <li *ngIf="topSold.length === 0" class="py-4 text-center text-gray-500">Aucune donnée disponible</li>
+        </ul>
+      </div>
     </div>
-    <div class="p-6">
-      <div class="text-center py-8 text-gray-500">
-        <p>Aucune activité récente à afficher.</p>
+
+    <!-- Top Search Trends -->
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+      <div class="p-6 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Tendances de recherche</h3>
+      </div>
+      <div class="p-6">
+        <div class="flex flex-wrap gap-2">
+          <span *ngFor="let trend of topSearches"
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+            {{ trend.query }} ({{ trend.searchCount }})
+          </span>
+          <p *ngIf="topSearches.length === 0" class="text-gray-500 w-full text-center">Aucune recherche récente</p>
+        </div>
       </div>
     </div>
   </div>

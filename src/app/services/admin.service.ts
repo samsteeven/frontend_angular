@@ -32,4 +32,27 @@ export class AdminService {
     getPharmacyRevenue(pharmacyId: string): Observable<any> {
         return this.http.get<any>(`/api/v1/orders/pharmacy-stats/${pharmacyId}`);
     }
+
+    // Feature 8.1: Global Stats
+    getGlobalStats(): Observable<any> {
+        return this.http.get<any>(`/api/v1/admin/dashboard/stats`);
+    }
+
+    // Feature 8.2: Analytics
+    getTopSoldMedications(): Observable<any[]> {
+        return this.http.get<any[]>(`/api/v1/admin/dashboard/top-medications/sold`);
+    }
+
+    getTopSearchTrends(): Observable<any[]> {
+        return this.http.get<any[]>(`/api/v1/admin/dashboard/top-medications/searched`);
+    }
+
+    // Feature 8.3: Review Moderation
+    getPharmacyReviews(pharmacyId: string): Observable<any[]> {
+        return this.http.get<any[]>(`/api/v1/reviews/pharmacy/${pharmacyId}`);
+    }
+
+    moderateReview(reviewId: string, status: 'APPROVED' | 'REJECTED'): Observable<any> {
+        return this.http.patch<any>(`/api/v1/reviews/${reviewId}/status?status=${status}`, {});
+    }
 }

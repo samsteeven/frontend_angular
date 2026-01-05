@@ -13,7 +13,9 @@ import { AdminService } from '../../../services/admin.service';
   templateUrl: './admin-dashboard.component.html'
 })
 export class AdminDashboardComponent implements OnInit {
-  stats: any = null;
+  globalStats: any = null;
+  topSold: any[] = [];
+  topSearches: any[] = [];
   loading = false;
   currentUser: any = null;
 
@@ -25,17 +27,34 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadStats();
+    this.loadData();
   }
 
-  loadStats(): void {
+  loadData(): void {
     this.loading = true;
-    this.adminService.getDashboardStats()
+
+    // Use forkJoin to load everything in parallel if possible, or just sequential
+    // For simplicity, let's load them
+    this.adminService.getGlobalStats()
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: (stats: any) => (this.stats = stats),
-        error: (error: any) => console.error('Erreur chargement stats:', error)
+        next: (data) => this.globalStats = data,
+        error: (err) => console.error('Error loading global stats', err)
       });
+
+    this.loadAnalytics();
+  }
+
+  loadAnalytics(): void {
+    this.adminService.getTopSoldMedications().subscribe({
+      next: (data) => this.topSold = data,
+      error: (err) => console.error('Error loading top sold', err)
+    });
+
+    this.adminService.getTopSearchTrends().subscribe({
+      next: (data) => this.topSearches = data,
+      error: (err) => console.error('Error loading trends', err)
+    });
   }
 
   getUserInitials(): string {

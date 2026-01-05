@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PharmacyService } from '../../../services/pharmacy.service';
+import { AdminService } from '../../../services/admin.service';
 import { Pharmacy, PharmacyStatus } from '../../../models/pharmacy.model';
 
 @Component({
-    selector: 'app-pharmacy-detail',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-pharmacy-detail',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="space-y-6" *ngIf="pharmacy; else loading">
       <!-- Header -->
       <div class="flex items-center justify-between">
@@ -104,6 +105,48 @@ import { Pharmacy, PharmacyStatus } from '../../../models/pharmacy.model';
           </div>
         </div>
       </div>
+
+
+      <!-- Reviews Section (Feature 8.3) -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mt-6">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Avis & Modération</h3>
+        </div>
+        <ul class="divide-y divide-gray-200">
+          <li *ngFor="let review of reviews" class="px-4 py-4 sm:px-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-900">{{ review.reviewerName || 'Anonyme' }}</p>
+                <div class="flex items-center mt-1">
+                  <!-- Star Rating Mockup -->
+                  <span class="text-yellow-400 text-sm">
+                    <i class="fas fa-star" *ngFor="let i of [1,2,3,4,5]" [ngClass]="{'text-gray-300': i > review.rating}"></i>
+                  </span>
+                  <span class="ml-2 text-sm text-gray-500">{{ review.createdAt | date:'mediumDate' }}</span>
+                </div>
+                <p class="mt-2 text-sm text-gray-600">{{ review.comment }}</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                 <span [ngClass]="getReviewStatusClass(review.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                   {{ review.status }}
+                 </span>
+                 <button *ngIf="review.status === 'PENDING'" (click)="moderateReview(review.id, 'APPROVED')" 
+                         class="text-green-600 hover:text-green-900 p-1" title="Approuver">
+                   <i class="fas fa-check-circle text-xl"></i>
+                 </button>
+                 <button *ngIf="review.status === 'PENDING'" (click)="moderateReview(review.id, 'REJECTED')" 
+                         class="text-red-600 hover:text-red-900 p-1" title="Rejeter">
+                   <i class="fas fa-times-circle text-xl"></i>
+                 </button>
+              </div>
+            </div>
+          </li>
+          <li *ngIf="reviews.length === 0" class="px-4 py-8 text-center text-gray-500">
+            Aucun avis pour cette pharmacie.
+          </li>
+        </ul>
+      </div>
+
     </div>
 
     <ng-template #loading>
@@ -114,69 +157,102 @@ import { Pharmacy, PharmacyStatus } from '../../../models/pharmacy.model';
   `
 })
 export class PharmacyDetailComponent implements OnInit {
-    pharmacy: Pharmacy | null = null;
-    isLoading = false;
+  pharmacy: Pharmacy | null = null;
+  reviews: any[] = [];
+  isLoading = false;
 
-    constructor(
-        private route: ActivatedRoute,
-        private pharmacyService: PharmacyService,
-        private router: Router
-    ) { }
+  constructor(
+    private route: ActivatedRoute,
+    private pharmacyService: PharmacyService,
+    private adminService: AdminService,
+    private router: Router
+  ) { }
 
-    ngOnInit(): void {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            this.loadPharmacy(id);
-        }
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.loadPharmacy(id);
+      this.loadReviews(id);
     }
+  }
 
-    loadPharmacy(id: string): void {
-        this.isLoading = true;
-        this.pharmacyService.getById(id).subscribe({
-            next: (data) => {
-                this.pharmacy = data;
-                this.isLoading = false;
-            },
-            error: (err) => {
-                console.error('Erreur chargement', err);
-                this.isLoading = false;
-                // Gérer 404
-            }
-        });
+  loadPharmacy(id: string): void {
+    this.isLoading = true;
+    this.pharmacyService.getById(id).subscribe({
+      next: (data) => {
+        this.pharmacy = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Erreur chargement', err);
+        this.isLoading = false;
+        // Gérer 404
+      }
+    });
+  }
+
+  loadReviews(id: string): void {
+    this.adminService.getPharmacyReviews(id).subscribe({
+      next: (data) => this.reviews = data,
+      error: (err) => console.error('Error loading reviews', err)
+    });
+  }
+
+  moderateReview(reviewId: string, status: 'APPROVED' | 'REJECTED'): void {
+    if (!confirm(`Confirmer l'action : ${status} ?`)) return;
+
+    this.adminService.moderateReview(reviewId, status).subscribe({
+      next: () => {
+        // Optimistic update
+        const review = this.reviews.find(r => r.id === reviewId);
+        if (review) review.status = status;
+        alert('Avis modéré avec succès.');
+      },
+      error: (err) => alert('Erreur lors de la modération')
+    });
+  }
+
+  getReviewStatusClass(status: string): string {
+    switch (status) {
+      case 'APPROVED': return 'bg-green-100 text-green-800';
+      case 'PENDING': return 'bg-yellow-100 text-yellow-800';
+      case 'REJECTED': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
+  }
 
-    updateStatus(status: PharmacyStatus): void {
-        if (!this.pharmacy) return;
+  updateStatus(status: PharmacyStatus): void {
+    if (!this.pharmacy) return;
 
-        // Pour REJECTED, idéalement ouvrir un modal pour la raison. Pour l'instant simple confirm.
-        if (!confirm(`Confirmez-vous le changement de statut vers : ${status} ?`)) return;
+    // Pour REJECTED, idéalement ouvrir un modal pour la raison. Pour l'instant simple confirm.
+    if (!confirm(`Confirmez-vous le changement de statut vers : ${status} ?`)) return;
 
-        this.pharmacyService.updateStatus(this.pharmacy.id, status).subscribe({
-            next: (updatedPharmacy) => {
-                this.pharmacy = updatedPharmacy;
-                alert('Statut mis à jour avec succès');
-            },
-            error: (err) => alert('Erreur lors de la mise à jour')
-        });
+    this.pharmacyService.updateStatus(this.pharmacy.id, status).subscribe({
+      next: (updatedPharmacy) => {
+        this.pharmacy = updatedPharmacy;
+        alert('Statut mis à jour avec succès');
+      },
+      error: (err) => alert('Erreur lors de la mise à jour')
+    });
+  }
+
+  getStatusClass(status: PharmacyStatus): string {
+    switch (status) {
+      case 'APPROVED': return 'bg-green-100 text-green-800';
+      case 'PENDING': return 'bg-yellow-100 text-yellow-800';
+      case 'REJECTED': return 'bg-red-100 text-red-800';
+      case 'SUSPENDED': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
+  }
 
-    getStatusClass(status: PharmacyStatus): string {
-        switch (status) {
-            case 'APPROVED': return 'bg-green-100 text-green-800';
-            case 'PENDING': return 'bg-yellow-100 text-yellow-800';
-            case 'REJECTED': return 'bg-red-100 text-red-800';
-            case 'SUSPENDED': return 'bg-gray-100 text-gray-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
+  getStatusLabel(status: PharmacyStatus): string {
+    switch (status) {
+      case 'APPROVED': return 'Actif';
+      case 'PENDING': return 'En Attente';
+      case 'REJECTED': return 'Rejeté';
+      case 'SUSPENDED': return 'Suspendu';
+      default: return status;
     }
-
-    getStatusLabel(status: PharmacyStatus): string {
-        switch (status) {
-            case 'APPROVED': return 'Actif';
-            case 'PENDING': return 'En Attente';
-            case 'REJECTED': return 'Rejeté';
-            case 'SUSPENDED': return 'Suspendu';
-            default: return status;
-        }
-    }
+  }
 }
