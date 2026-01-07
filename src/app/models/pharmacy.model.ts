@@ -3,6 +3,9 @@ export type PharmacyStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
 export interface Pharmacy {
     id: string;
     userId: string;
+    ownerFirstName?: string;
+    ownerLastName?: string;
+    ownerEmail?: string;
     name: string;
     licenseNumber: string;
     address: string;
@@ -10,8 +13,6 @@ export interface Pharmacy {
     phone: string;
     latitude: number;
     longitude: number;
-    ownerName?: string;
-    email?: string;
     description?: string;
     openingHours?: string;
     averageRating?: number;

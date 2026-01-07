@@ -57,7 +57,7 @@ import { Pharmacy, PharmacyStatus } from '../../../models/pharmacy.model';
             <dl class="sm:divide-y sm:divide-gray-200">
               <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Propriétaire</dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ pharmacy.ownerName }}</dd>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ getOwnerFullName() }}</dd>
               </div>
               <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Numéro de Licence</dt>
@@ -99,7 +99,7 @@ import { Pharmacy, PharmacyStatus } from '../../../models/pharmacy.model';
               </div>
               <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Email</dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ pharmacy.email }}</dd>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ pharmacy.ownerEmail || 'Non renseigné' }}</dd>
               </div>
             </dl>
           </div>
@@ -219,6 +219,14 @@ export class PharmacyDetailComponent implements OnInit {
       case 'REJECTED': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  getOwnerFullName(): string {
+    if (!this.pharmacy) return 'Propriétaire inconnu';
+    if (this.pharmacy.ownerFirstName && this.pharmacy.ownerLastName) {
+      return `${this.pharmacy.ownerFirstName} ${this.pharmacy.ownerLastName}`;
+    }
+    return 'Propriétaire inconnu';
   }
 
   updateStatus(status: PharmacyStatus): void {

@@ -5,10 +5,10 @@ import { PharmacyService } from '../../../services/pharmacy.service';
 import { Pharmacy, PharmacyStatus } from '../../../models/pharmacy.model';
 
 @Component({
-    selector: 'app-pharmacy-approval',
-    standalone: true,
-    imports: [CommonModule, RouterLink],
-    template: `
+  selector: 'app-pharmacy-approval',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  template: `
     <div class="space-y-6">
       <!-- Header -->
       <div class="flex items-center justify-between">
@@ -52,7 +52,7 @@ import { Pharmacy, PharmacyStatus } from '../../../models/pharmacy.model';
                     </p>
                     <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
                       <i class="fas fa-user flex-shrink-0 mr-1.5 text-gray-400"></i>
-                      {{ pharmacy.ownerName || 'Propriétaire inconnu' }}
+                      {{ getOwnerFullName(pharmacy) }}
                     </p>
                   </div>
                   <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
@@ -83,56 +83,63 @@ import { Pharmacy, PharmacyStatus } from '../../../models/pharmacy.model';
   `
 })
 export class PharmacyApprovalComponent implements OnInit {
-    pharmacies: Pharmacy[] = [];
-    filteredPharmacies: Pharmacy[] = [];
-    currentFilter: string = 'ALL';
+  pharmacies: Pharmacy[] = [];
+  filteredPharmacies: Pharmacy[] = [];
+  currentFilter: string = 'ALL';
 
-    constructor(private pharmacyService: PharmacyService) { }
+  constructor(private pharmacyService: PharmacyService) { }
 
-    ngOnInit(): void {
-        this.loadPharmacies();
-    }
+  ngOnInit(): void {
+    this.loadPharmacies();
+  }
 
-    loadPharmacies(): void {
-        this.pharmacyService.getAll().subscribe({
-            next: (data) => {
-                this.pharmacies = data;
-                this.applyFilter();
-            },
-            error: (err) => console.error('Erreur chargement pharmacies', err)
-        });
-    }
-
-    filterByStatus(event: any): void {
-        this.currentFilter = event.target.value;
+  loadPharmacies(): void {
+    this.pharmacyService.getAll().subscribe({
+      next: (data) => {
+        this.pharmacies = data;
         this.applyFilter();
-    }
+      },
+      error: (err) => console.error('Erreur chargement pharmacies', err)
+    });
+  }
 
-    applyFilter(): void {
-        if (this.currentFilter === 'ALL') {
-            this.filteredPharmacies = this.pharmacies;
-        } else {
-            this.filteredPharmacies = this.pharmacies.filter(p => p.status === this.currentFilter);
-        }
-    }
+  filterByStatus(event: any): void {
+    this.currentFilter = event.target.value;
+    this.applyFilter();
+  }
 
-    getStatusClass(status: PharmacyStatus): string {
-        switch (status) {
-            case 'APPROVED': return 'bg-green-100 text-green-800';
-            case 'PENDING': return 'bg-yellow-100 text-yellow-800';
-            case 'REJECTED': return 'bg-red-100 text-red-800';
-            case 'SUSPENDED': return 'bg-gray-100 text-gray-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
+  applyFilter(): void {
+    if (this.currentFilter === 'ALL') {
+      this.filteredPharmacies = this.pharmacies;
+    } else {
+      this.filteredPharmacies = this.pharmacies.filter(p => p.status === this.currentFilter);
     }
+  }
 
-    getStatusLabel(status: PharmacyStatus): string {
-        switch (status) {
-            case 'APPROVED': return 'Actif';
-            case 'PENDING': return 'En Attente';
-            case 'REJECTED': return 'Rejeté';
-            case 'SUSPENDED': return 'Suspendu';
-            default: return status;
-        }
+  getStatusClass(status: PharmacyStatus): string {
+    switch (status) {
+      case 'APPROVED': return 'bg-green-100 text-green-800';
+      case 'PENDING': return 'bg-yellow-100 text-yellow-800';
+      case 'REJECTED': return 'bg-red-100 text-red-800';
+      case 'SUSPENDED': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  getOwnerFullName(pharmacy: Pharmacy): string {
+    if (pharmacy.ownerFirstName && pharmacy.ownerLastName) {
+      return `${pharmacy.ownerFirstName} ${pharmacy.ownerLastName}`;
+    }
+    return 'Propriétaire inconnu';
+  }
+
+  getStatusLabel(status: PharmacyStatus): string {
+    switch (status) {
+      case 'APPROVED': return 'Actif';
+      case 'PENDING': return 'En Attente';
+      case 'REJECTED': return 'Rejeté';
+      case 'SUSPENDED': return 'Suspendu';
+      default: return status;
+    }
+  }
 }
