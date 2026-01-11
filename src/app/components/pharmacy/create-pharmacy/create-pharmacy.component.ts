@@ -4,12 +4,13 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { PharmacyService } from '../../../services/pharmacy.service';
 import { AuthService } from '../../../services/auth.service';
+import { FileUploadService } from '../../../services/file-upload.service';
 
 @Component({
-    selector: 'app-create-pharmacy',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
-    template: `
+  selector: 'app-create-pharmacy',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  template: `
     <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <div class="flex justify-center text-green-600">
@@ -135,74 +136,84 @@ import { AuthService } from '../../../services/auth.service';
   `
 })
 export class CreatePharmacyComponent implements OnInit {
-    licenseFile: File | null = null;
-    pharmacyForm: FormGroup;
-    isLoading = false;
-    errorMessage: string | null = null;
+  licenseFile: File | null = null;
+  pharmacyForm: FormGroup;
+  isLoading = false;
+  errorMessage: string | null = null;
 
-    constructor(
-        private fb: FormBuilder,
-        private pharmacyService: PharmacyService,
-        private authService: AuthService,
-        private router: Router
-    ) {
-        this.pharmacyForm = this.fb.group({
-            name: ['', Validators.required],
-            address: ['', Validators.required],
-            city: ['', Validators.required],
-            phone: ['', Validators.required],
-            licenseNumber: ['', Validators.required],
-            latitude: [0],
-            longitude: [0]
-        });
+  constructor(
+    private fb: FormBuilder,
+    private pharmacyService: PharmacyService,
+    private authService: AuthService,
+    private router: Router,
+    private fileUploadService: FileUploadService
+  ) {
+    this.pharmacyForm = this.fb.group({
+      name: ['', Validators.required],
+      address: ['', Validators.required],
+      city: ['', Validators.required],
+      phone: ['', Validators.required],
+      licenseNumber: ['', Validators.required],
+      latitude: [0],
+      longitude: [0]
+    });
+  }
+
+  ngOnInit(): void {
+    // Prevent duplicate pharmacy creation
+    if (this.authService.hasPharmacy()) {
+      this.router.navigate(['/pharmacy-admin/dashboard']);
     }
+  }
 
-    ngOnInit(): void {
-        // Prevent duplicate pharmacy creation
-        if (this.authService.hasPharmacy()) {
-            this.router.navigate(['/pharmacy-admin/dashboard']);
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      const validation = this.fileUploadService.validateFile(file);
+      if (!validation.valid) {
+        this.errorMessage = validation.error || 'Fichier invalide';
+        this.licenseFile = null;
+        // Reset input
+        event.target.value = '';
+        return;
+      }
+      this.errorMessage = null;
+      this.licenseFile = file;
+    }
+  }
+
+  onSubmit(): void {
+    if (this.pharmacyForm.valid && this.licenseFile) {
+      this.isLoading = true;
+      this.errorMessage = null;
+
+      const formData = new FormData();
+
+      // 1. Ajouter le JSON en tant que Blob stringifié (backend requirement)
+      formData.append('pharmacy', new Blob([JSON.stringify(this.pharmacyForm.value)], { type: 'application/json' }));
+
+      // 2. Ajouter le fichier avec la clé exacte 'licenseDocument'
+      formData.append('licenseDocument', this.licenseFile);
+
+      this.pharmacyService.create(formData).subscribe({
+        next: (pharmacy) => {
+          this.isLoading = false;
+          this.authService.getProfile().subscribe({
+            next: () => this.router.navigate(['/pharmacy/dashboard']),
+            error: () => this.router.navigate(['/pharmacy/dashboard'])
+          });
+        },
+        error: (err) => {
+          console.error('Erreur création pharmacie', err);
+          this.isLoading = false;
+          this.errorMessage = "Une erreur est survenue lors de la création.";
         }
+      });
+    } else {
+      this.pharmacyForm.markAllAsTouched();
+      if (!this.licenseFile) {
+        this.errorMessage = "Le document de licence est requis.";
+      }
     }
-
-    onFileSelected(event: any): void {
-        const file: File = event.target.files[0];
-        if (file) {
-            this.licenseFile = file;
-        }
-    }
-
-    onSubmit(): void {
-        if (this.pharmacyForm.valid && this.licenseFile) {
-            this.isLoading = true;
-            this.errorMessage = null;
-
-            const formData = new FormData();
-
-            // 1. Ajouter le JSON en tant que Blob stringifié (backend requirement)
-            formData.append('pharmacy', new Blob([JSON.stringify(this.pharmacyForm.value)], { type: 'application/json' }));
-
-            // 2. Ajouter le fichier avec la clé exacte 'licenseDocument'
-            formData.append('licenseDocument', this.licenseFile);
-
-            this.pharmacyService.create(formData).subscribe({
-                next: (pharmacy) => {
-                    this.isLoading = false;
-                    this.authService.getProfile().subscribe({
-                        next: () => this.router.navigate(['/pharmacy/dashboard']),
-                        error: () => this.router.navigate(['/pharmacy/dashboard'])
-                    });
-                },
-                error: (err) => {
-                    console.error('Erreur création pharmacie', err);
-                    this.isLoading = false;
-                    this.errorMessage = "Une erreur est survenue lors de la création.";
-                }
-            });
-        } else {
-            this.pharmacyForm.markAllAsTouched();
-            if (!this.licenseFile) {
-                this.errorMessage = "Le document de licence est requis.";
-            }
-        }
-    }
+  }
 }

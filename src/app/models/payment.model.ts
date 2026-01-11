@@ -5,7 +5,8 @@ export enum PaymentMethod {
 }
 
 export interface PaymentRequestDTO {
-    orderId: string;
+    orderId?: string;       // Support single order backward compatibility
+    orderIds?: string[];    // Support multiple orders
     amount: number;
     method: PaymentMethod;
     phoneNumber?: string; // For Mobile Money

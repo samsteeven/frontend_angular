@@ -97,6 +97,12 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+  {
+    path: 'my-prescriptions',
+    loadComponent: () => import('./components/client/prescription/prescription-upload.component').then(m => m.PrescriptionUploadComponent),
+    canActivate: [authGuard]
+  },
+
   // 404 - Not Found page
   { path: '**', component: NotFoundComponent }
 ];

@@ -4,6 +4,11 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { BackendResponse } from './user.service';
 
+export interface FileValidationResult {
+    valid: boolean;
+    error?: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -21,7 +26,7 @@ export class FileUploadService {
     /**
      * Valide un fichier avant upload
      */
-    validateFile(file: File): { valid: boolean; error?: string } {
+    validateFile(file: File): FileValidationResult {
         // Vérifier la taille
         if (file.size > this.MAX_FILE_SIZE) {
             return { valid: false, error: 'Fichier trop volumineux. Taille maximale: 5MB' };
