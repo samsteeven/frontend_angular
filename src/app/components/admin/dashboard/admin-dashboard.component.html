@@ -6,7 +6,7 @@
       <p class="mt-1 text-slate-500 font-medium">Vue d'ensemble de l'administration système.</p>
     </div>
     <div class="flex gap-4">
-      <button
+      <button (click)="exportData()"
         class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-50 hover:shadow-sm active:scale-95 transition-all duration-200">
         <fa-icon [icon]="faDownload" class="mr-2 text-indigo-500"></fa-icon> Exporter les données
       </button>

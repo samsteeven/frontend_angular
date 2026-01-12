@@ -52,10 +52,22 @@ export class PharmacyDashboardComponent implements OnInit {
         private orderService: OrderService,
         private router: Router
     ) {
+        // Initialize with basic user data from localStorage
         this.currentUser = this.authService.getCurrentUser();
     }
 
     ngOnInit(): void {
+        // Load complete user profile from backend
+        this.authService.getProfile().subscribe({
+            next: (user) => {
+                this.currentUser = user;
+            },
+            error: (err) => {
+                console.error('Error loading user profile', err);
+                // Continue with localStorage data if API fails
+            }
+        });
+
         this.checkPharmacyStatus();
     }
 
