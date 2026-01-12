@@ -17,7 +17,17 @@ import {
   faTimesCircle,
   faClock,
   faSpinner,
-  faUserTie
+  faUserTie,
+  faHistory,
+  faFileInvoice,
+  faCalendarAlt,
+  faChevronRight,
+  faUser,
+  faMapMarkerAlt,
+  faChevronDown,
+  faPrescription,
+  faCapsules,
+  faTimes
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -25,126 +35,155 @@ import {
   standalone: true,
   imports: [CommonModule, FormsModule, FontAwesomeModule],
   template: `
-    <div class="container mx-auto p-4 md:p-6 bg-gray-50 min-h-screen">
-      <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <div class="page-bg-refined p-8 space-y-8 animate-fadeInUp">
+      <!-- Header Area -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Gestion des Commandes</h1>
-          <p class="text-gray-500">Gérez et suivez les commandes de votre pharmacie</p>
+          <h1 class="text-3xl font-semibold text-slate-900 tracking-tight">Gestion des Commandes</h1>
+          <p class="mt-1 text-slate-500 font-medium tracking-tight">Suivez et traitez les commandes de médicaments en temps réel dans votre pharmacie.</p>
         </div>
         
-        <!-- Status Filter -->
-        <div class="flex gap-2 bg-white p-1 rounded-lg shadow-sm border border-gray-200 overflow-x-auto max-w-full">
+        <!-- Status Filter Tabs -->
+        <div class="auth-card !p-1 flex bg-slate-100/50 gap-1 overflow-x-auto max-w-full">
           <button 
             *ngFor="let status of filterStatuses"
-            (click)="currentFilter = status"
-            [class.bg-blue-600]="currentFilter === status"
-            [class.text-white]="currentFilter === status"
-            [class.text-gray-600]="currentFilter !== status"
-            class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap">
+            (click)="currentFilter = status; applyFilter()"
+            [class.bg-white]="currentFilter === status"
+            [class.shadow-sm]="currentFilter === status"
+            [class.text-indigo-600]="currentFilter === status"
+            [class.text-slate-500]="currentFilter !== status"
+            class="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap hover:text-indigo-500">
             {{ formatStatus(status) }}
           </button>
         </div>
       </div>
 
       <!-- Loading State -->
-      <div *ngIf="isLoading" class="flex justify-center items-center py-20">
-        <fa-icon [icon]="faSpinner" [class.fa-spin]="true" class="text-4xl text-blue-600"></fa-icon>
+      <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-24">
+        <div class="w-12 h-12 mb-4 animate-spin flex items-center justify-center text-indigo-500">
+          <fa-icon [icon]="faSpinner" class="text-4xl"></fa-icon>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">Synchronisation des flux...</p>
       </div>
 
       <!-- Error State -->
-      <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded shadow-sm">
-        <div class="flex items-center">
-          <fa-icon [icon]="faTimesCircle" class="text-red-500 mr-2"></fa-icon>
-          <p class="text-red-700">{{ errorMessage }}</p>
+      <div *ngIf="errorMessage" class="auth-card !border-rose-100 !bg-rose-50/30 flex items-center gap-6 animate-shake">
+        <div class="icon-container-rose w-14 h-14 !bg-white">
+          <fa-icon [icon]="faTimesCircle" class="text-xl"></fa-icon>
         </div>
-        <button (click)="loadOrders()" class="mt-2 text-sm text-red-600 font-semibold hover:underline">Réessayer</button>
+        <div class="flex-1">
+          <h4 class="text-lg font-semibold text-rose-900 tracking-tight">Erreur de chargement</h4>
+          <p class="text-rose-700 font-medium text-sm">{{ errorMessage }}</p>
+        </div>
+        <button (click)="loadOrders()" class="btn-primary !bg-rose-600 hover:!bg-rose-700 shadow-rose-100">
+          Réessayer
+        </button>
       </div>
 
-      <!-- Content -->
-      <div *ngIf="!isLoading && !errorMessage">
+      <!-- Main Content -->
+      <div *ngIf="!isLoading && !errorMessage" class="space-y-8">
         
         <!-- Empty State -->
-        <div *ngIf="filteredOrders.length === 0" class="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
-          <div class="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-            <fa-icon [icon]="faBoxOpen" class="text-2xl text-blue-500"></fa-icon>
+        <div *ngIf="filteredOrders.length === 0" class="auth-card !py-24 flex flex-col items-center border-dashed border-2 border-slate-200 bg-transparent shadow-none">
+          <div class="icon-container-blue w-20 h-20 mb-6 !bg-slate-50 !text-slate-300">
+            <fa-icon [icon]="faBoxOpen" class="text-3xl"></fa-icon>
           </div>
-          <h3 class="text-lg font-medium text-gray-900">Aucune commande trouvée</h3>
-          <p class="text-gray-500 mt-1">Il n'y a pas de commandes correspondant au filtre "{{ formatStatus(currentFilter) }}"</p>
+          <h3 class="text-xl font-semibold text-slate-900 tracking-tight">Aucune commande</h3>
+          <p class="mt-2 text-slate-500 font-medium text-center max-w-sm">Il n'y a actuellement aucune commande avec le statut "{{ formatStatus(currentFilter) }}".</p>
+          <button (click)="currentFilter = 'ALL'; applyFilter()" class="mt-8 text-xs font-bold text-indigo-600 hover:text-indigo-800 uppercase tracking-widest flex items-center gap-2">
+            Voir toutes les commandes <fa-icon [icon]="faChevronRight" class="text-[8px]"></fa-icon>
+          </button>
         </div>
 
         <!-- Orders Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="filteredOrders.length > 0">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" *ngIf="filteredOrders.length > 0">
           <div *ngFor="let order of filteredOrders" 
-               class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+               class="auth-card !p-0 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group border-transparent hover:border-indigo-100">
             
-            <!-- Header -->
-            <div class="p-4 border-b border-gray-100 flex justify-between items-start bg-gray-50/50">
-              <div>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                      [ngClass]="getStatusColor(order.status)">
-                  {{ formatStatus(order.status) }}
-                </span>
-                <p class="text-xs text-gray-500 mt-2">#{{ order.id.slice(0, 8) }}</p>
-                <p class="text-xs text-gray-400">{{ order.createdAt | date:'dd MMM yyyy, HH:mm' }}</p>
-              </div>
-              <div class="text-right">
-                <p class="text-lg font-bold text-gray-900">{{ order.totalAmount | currency:'XAF':'symbol':'1.0-0' }}</p>
-                <p class="text-xs text-gray-500">{{ order.items.length }} articles</p>
+            <!-- Order Header -->
+            <div class="p-6 bg-slate-50/50 border-b border-slate-100">
+              <div class="flex justify-between items-start gap-4">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Réf.</span>
+                    <span class="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase">#{{ order.id.slice(0, 8) }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-2">
+                    <fa-icon [icon]="faCalendarAlt" class="text-slate-300 text-[10px]"></fa-icon>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">{{ order.createdAt | date:'dd MMM yyyy, HH:mm' }}</span>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="text-2xl font-bold text-slate-900 tracking-tighter">
+                    {{ order.totalAmount | currency:'XAF':'symbol':'1.0-0' }}
+                  </div>
+                  <div class="mt-2 flex justify-end">
+                    <span [ngClass]="getStatusColor(order.status)"
+                          class="inline-flex px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border">
+                      {{ formatStatus(order.status) }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Items Preview (First 2) -->
-            <div class="p-4 space-y-3">
-              <div *ngFor="let item of order.items.slice(0, 2)" class="flex justify-between text-sm">
-                <span class="text-gray-700 font-medium truncate pr-2">{{ item.medicationName || 'Médicament' }}</span>
-                <span class="text-gray-500 whitespace-nowrap">x{{ item.quantity }}</span>
+            <!-- Items Information -->
+            <div class="p-6 space-y-4">
+              <div *ngFor="let item of order.items.slice(0, 2)" class="flex justify-between items-center bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-indigo-500 border border-slate-100 shrink-0 shadow-sm">
+                    <fa-icon [icon]="faCapsules" class="text-xs"></fa-icon>
+                  </div>
+                  <span class="text-xs font-semibold text-slate-700 truncate pr-2 tracking-tight">{{ item.medicationName || 'Pharmaceutique' }}</span>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-2 py-1 rounded-md border border-slate-100">x{{ item.quantity }}</span>
               </div>
-              <div *ngIf="order.items.length > 2" class="text-xs text-blue-600 font-medium italic">
-                + {{ order.items.length - 2 }} autres articles...
-              </div>
+              <button *ngIf="order.items.length > 2" class="w-full py-2 text-[9px] font-bold text-indigo-500 uppercase tracking-[0.2em] bg-indigo-50/50 rounded-xl hover:bg-indigo-50 transition-colors">
+                + {{ order.items.length - 2 }} autres articles
+              </button>
             </div>
 
-            <!-- Customer Info -->
-            <div class="px-4 py-2 bg-gray-50 text-xs text-gray-600 border-t border-gray-100 flex items-center gap-2">
-                <fa-icon [icon]="faTruck" class="text-gray-400"></fa-icon>
-                <span class="truncate">{{ order.deliveryAddress }}</span>
+            <!-- Logistics Detail -->
+            <div class="px-6 py-4 bg-slate-50/30 text-[10px] text-slate-500 border-t border-slate-100 flex items-center gap-3">
+                <fa-icon [icon]="faMapMarkerAlt" class="text-slate-300 text-xs"></fa-icon>
+                <span class="truncate font-bold tracking-tight uppercase tracking-widest leading-relaxed">{{ order.deliveryAddress }}</span>
             </div>
 
-            <!-- Actions -->
-            <div class="p-4 border-t border-gray-100 flex justify-between items-center gap-2">
-              <button class="flex-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors border border-gray-200">
-                Détails
+            <!-- Smart Actions -->
+            <div class="p-6 border-t border-slate-100 flex gap-3">
+              <button class="w-12 h-12 rounded-2xl bg-slate-50 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center justify-center shrink-0">
+                <fa-icon [icon]="faEye" class="text-sm"></fa-icon>
               </button>
               
               <button *ngIf="order.status === 'PENDING'" 
                       (click)="updateStatus(order, 'CONFIRMED')"
                       [disabled]="isUpdating === order.id"
-                      class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
-                <fa-icon [icon]="isUpdating === order.id ? faSpinner : faCheck" [class.fa-spin]="isUpdating === order.id"></fa-icon>
-                Confirmer
+                      class="flex-1 btn-primary !py-0 h-12 flex justify-center items-center gap-3">
+                <fa-icon [icon]="isUpdating === order.id ? faSpinner : faCheck" [animation]="isUpdating === order.id ? 'spin' : undefined"></fa-icon>
+                <span class="text-[10px] font-bold uppercase tracking-widest">Confirmer flux</span>
               </button>
 
               <button *ngIf="order.status === 'CONFIRMED'" 
                       (click)="updateStatus(order, 'PREPARING')"
                       [disabled]="isUpdating === order.id"
-                      class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
-                <fa-icon [icon]="isUpdating === order.id ? faSpinner : faBoxOpen" [class.fa-spin]="isUpdating === order.id"></fa-icon>
-                Préparer
+                      class="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl flex justify-center items-center gap-3 transition-all shadow-lg shadow-amber-100">
+                <fa-icon [icon]="isUpdating === order.id ? faSpinner : faBoxOpen" [animation]="isUpdating === order.id ? 'spin' : undefined"></fa-icon>
+                <span class="text-[10px] font-bold uppercase tracking-widest">Préparation</span>
               </button>
 
               <button *ngIf="order.status === 'PREPARING'" 
                       (click)="updateStatus(order, 'READY')"
                       [disabled]="isUpdating === order.id"
-                      class="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
-                <fa-icon [icon]="isUpdating === order.id ? faSpinner : faCheckCircle" [class.fa-spin]="isUpdating === order.id"></fa-icon>
-                Prêt
+                      class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl flex justify-center items-center gap-3 transition-all shadow-lg shadow-emerald-100">
+                <fa-icon [icon]="isUpdating === order.id ? faSpinner : faCheckCircle" [animation]="isUpdating === order.id ? 'spin' : undefined"></fa-icon>
+                <span class="text-[10px] font-bold uppercase tracking-widest">Aviser Client</span>
               </button>
 
               <button *ngIf="order.status === 'READY'" 
                       (click)="openAssignModal(order)"
-                      class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+                      class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl flex justify-center items-center gap-3 transition-all shadow-lg shadow-indigo-100">
                 <fa-icon [icon]="faUserTie"></fa-icon>
-                Assigner livreur
+                <span class="text-[10px] font-bold uppercase tracking-widest">Livreur</span>
               </button>
             </div>
           </div>
@@ -152,52 +191,74 @@ import {
       </div>
 
       <!-- Delivery Assignment Modal -->
-      <div *ngIf="showAssignModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-          <div class="p-6 border-b border-gray-200">
-            <h3 class="text-xl font-bold text-gray-900">Assigner un livreur</h3>
-            <p class="text-sm text-gray-500 mt-1">Commande #{{ selectedOrder?.id?.slice(0, 8) }}</p>
-          </div>
+      <div *ngIf="showAssignModal" class="fixed inset-0 z-[100] overflow-y-auto">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity" (click)="closeAssignModal()"></div>
 
-          <div class="p-6">
-            <div *ngIf="availableCouriers.length === 0" class="text-center py-8">
-              <fa-icon [icon]="faUserTie" class="text-4xl text-gray-300 mb-3"></fa-icon>
-              <p class="text-gray-500">Aucun livreur disponible</p>
-              <p class="text-sm text-gray-400 mt-1">Ajoutez des employés avec le rôle DELIVERY</p>
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <div class="auth-card !p-0 w-full max-w-md overflow-hidden animate-fadeInUp shadow-2xl">
+            <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="icon-container-indigo w-12 h-12">
+                  <fa-icon [icon]="faUserTie" class="text-xl"></fa-icon>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold text-slate-900 tracking-tight">Logistique Livraison</h3>
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Commande #{{ selectedOrder?.id?.slice(0, 8) }}</p>
+                </div>
+              </div>
+              <button (click)="closeAssignModal()" class="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all">
+                <fa-icon [icon]="faTimes"></fa-icon>
+              </button>
             </div>
 
-            <div *ngIf="availableCouriers.length > 0" class="space-y-3">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionnez un livreur</label>
-              <div *ngFor="let courier of availableCouriers" 
-                   (click)="selectedCourierId = courier.id"
-                   [class.border-blue-500]="selectedCourierId === courier.id"
-                   [class.bg-blue-50]="selectedCourierId === courier.id"
-                   class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-blue-300 transition-colors">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="font-medium text-gray-900">{{ courier.firstName }} {{ courier.lastName }}</p>
-                    <p class="text-sm text-gray-500">{{ courier.phone }}</p>
+            <div class="p-8">
+              <div *ngIf="availableCouriers.length === 0" class="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <fa-icon [icon]="faUserTie" class="text-4xl text-slate-200 mb-4"></fa-icon>
+                <p class="text-slate-500 font-semibold text-sm tracking-tight">Aucun livreur disponible</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 px-4">Activez des livreurs dans la gestion des employés.</p>
+              </div>
+
+              <div *ngIf="availableCouriers.length > 0" class="space-y-4">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 px-1">Livreurs en service</label>
+                <div *ngFor="let courier of availableCouriers" 
+                     (click)="selectedCourierId = courier.id"
+                     [ngClass]="{
+                       'border-indigo-500 bg-indigo-50/50 scale-[1.02] shadow-sm': selectedCourierId === courier.id,
+                       'border-slate-100 hover:border-indigo-200 hover:bg-slate-50/50': selectedCourierId !== courier.id
+                     }"
+                     class="group border-2 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex items-center gap-4">
+                  
+                  <div class="icon-container-blue w-12 h-12 shrink-0 group-hover:bg-white transition-colors">
+                    <fa-icon [icon]="faUser" class="text-sm"></fa-icon>
                   </div>
-                  <div *ngIf="selectedCourierId === courier.id" class="text-blue-600">
+                  <div class="flex-1">
+                    <p class="font-semibold text-slate-900 tracking-tight transition-colors" [class.text-indigo-600]="selectedCourierId === courier.id">{{ courier.firstName }} {{ courier.lastName }}</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{{ courier.phone }}</p>
+                  </div>
+                  <div *ngIf="selectedCourierId === courier.id" class="text-indigo-600 animate-fadeInUp">
                     <fa-icon [icon]="faCheckCircle" class="text-xl"></fa-icon>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div class="p-6 border-t border-gray-200 flex gap-3">
-            <button (click)="closeAssignModal()" 
-                    [disabled]="isAssigning"
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors">
-              Annuler
-            </button>
-            <button (click)="assignDelivery()" 
-                    [disabled]="!selectedCourierId || isAssigning"
-                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-              <fa-icon *ngIf="isAssigning" [icon]="faSpinner" [class.fa-spin]="true"></fa-icon>
-              {{ isAssigning ? 'Assignation...' : 'Confirmer' }}
-            </button>
+              <div class="mt-10 flex gap-4 pt-8 border-t border-slate-100">
+                <button (click)="closeAssignModal()" 
+                        [disabled]="isAssigning"
+                        class="flex-1 px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-slate-500 hover:bg-slate-100 transition-all">
+                  Conserver
+                </button>
+                <button (click)="assignDelivery()" 
+                        [disabled]="!selectedCourierId || isAssigning"
+                        class="flex-[2] btn-primary !py-4 shadow-lg shadow-indigo-100">
+                  <span *ngIf="!isAssigning" class="flex items-center justify-center gap-2">
+                    Lancer la livraison <fa-icon [icon]="faTruck"></fa-icon>
+                  </span>
+                  <span *ngIf="isAssigning" class="flex items-center justify-center gap-3">
+                    <fa-icon [icon]="faSpinner" animation="spin"></fa-icon> Flux Logistique...
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -217,6 +278,16 @@ export class OrderManagementComponent implements OnInit {
   faClock = faClock;
   faSpinner = faSpinner;
   faUserTie = faUserTie;
+  faHistory = faHistory;
+  faFileInvoice = faFileInvoice;
+  faCalendarAlt = faCalendarAlt;
+  faChevronRight = faChevronRight;
+  faUser = faUser;
+  faMapMarkerAlt = faMapMarkerAlt;
+  faChevronDown = faChevronDown;
+  faPrescription = faPrescription;
+  faCapsules = faCapsules;
+  faTimes = faTimes;
 
   orders: Order[] = [];
   filteredOrders: Order[] = [];
@@ -331,14 +402,14 @@ export class OrderManagementComponent implements OnInit {
 
   getStatusColor(status: string): string {
     switch (status) {
-      case 'PENDING': return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'CONFIRMED': return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'PREPARING': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-      case 'READY': return 'bg-green-50 text-green-700 border-green-200';
-      case 'DELIVERING': return 'bg-purple-50 text-purple-700 border-purple-200';
-      case 'DELIVERED': return 'bg-green-100 text-green-800 border-green-200';
-      case 'CANCELLED': return 'bg-red-50 text-red-700 border-red-200';
-      default: return 'bg-gray-50 text-gray-600';
+      case 'PENDING': return 'bg-slate-100 text-slate-800 border-slate-200';
+      case 'CONFIRMED': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      case 'PREPARING': return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'READY': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'DELIVERING': return 'bg-violet-50 text-violet-700 border-violet-200';
+      case 'DELIVERED': return 'bg-teal-50 text-teal-700 border-teal-200';
+      case 'CANCELLED': return 'bg-rose-50 text-rose-700 border-rose-200';
+      default: return 'bg-slate-50 text-slate-600 border-slate-200';
     }
   }
 

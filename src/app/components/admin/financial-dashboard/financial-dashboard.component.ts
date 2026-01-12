@@ -6,14 +6,23 @@ import { PharmacyService } from '@services';
 import { PaymentService } from '@services';
 import { Pharmacy } from '@models';
 import { finalize } from 'rxjs/operators';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faCircleNotch, faStoreSlash, faCoins, faHandHoldingUsd, faHistory, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-financial-dashboard',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, FontAwesomeModule],
     templateUrl: './financial-dashboard.component.html'
 })
 export class FinancialDashboardComponent implements OnInit {
+    faCircleNotch = faCircleNotch;
+    faStoreSlash = faStoreSlash;
+    faCoins = faCoins;
+    faHandHoldingUsd = faHandHoldingUsd;
+    faHistory = faHistory;
+    faPaperPlane = faPaperPlane;
+
     pharmacies: Pharmacy[] = [];
     selectedPharmacyId: string = '';
     totalRevenue: number = 0; // Changed to simple number

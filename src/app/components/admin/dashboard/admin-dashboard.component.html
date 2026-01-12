@@ -1,116 +1,135 @@
-<div class="space-y-6">
+<div class="page-bg-refined p-8 space-y-8 animate-fadeInUp">
   <!-- Header -->
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900">Tableau de bord</h1>
-      <p class="mt-1 text-sm text-gray-500">Vue d'ensemble de l'administration système.</p>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Tableau de bord</h1>
+      <p class="mt-1 text-slate-500 font-medium">Vue d'ensemble de l'administration système.</p>
     </div>
-    <div class="flex gap-3">
+    <div class="flex gap-4">
       <button
-        class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
-        <i class="fas fa-download mr-2"></i> Exporter
+        class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-50 hover:shadow-sm active:scale-95 transition-all duration-200">
+        <fa-icon [icon]="faDownload" class="mr-2 text-indigo-500"></fa-icon> Exporter les données
       </button>
     </div>
   </div>
 
   <!-- Stats Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
     <!-- Revenue -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-      <div class="p-6">
-        <div class="flex items-center">
-          <div class="p-3 rounded-full bg-indigo-100 text-indigo-600">
-            <i class="fas fa-coins w-6 h-6"></i>
-          </div>
-          <div class="ml-4">
-            <h2 class="text-sm font-medium text-gray-500">Chiffre d'Affaires</h2>
-            <p class="text-lg font-semibold text-gray-900 mt-1">{{ (globalStats?.totalRevenue || 0) | number:'1.0-0' }}
-              FCFA</p>
-          </div>
+    <div class="auth-card !p-6 hover:shadow-md transition-shadow">
+      <div class="flex items-center gap-5">
+        <div class="icon-container-indigo w-14 h-14 shrink-0">
+          <fa-icon [icon]="faCoins" class="text-xl"></fa-icon>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Revenus</h2>
+          <p class="text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+            {{ (globalStats?.totalRevenue || 0) | number:'1.0-0' }} <span class="text-sm font-bold">FCFA</span>
+          </p>
         </div>
       </div>
     </div>
 
     <!-- Patients -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-      <div class="p-6">
-        <div class="flex items-center">
-          <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-            <i class="fas fa-users w-6 h-6"></i>
-          </div>
-          <div class="ml-4">
-            <h2 class="text-sm font-medium text-gray-500">Patients</h2>
-            <p class="text-lg font-semibold text-gray-900 mt-1">{{ globalStats?.totalPatients || 0 }}</p>
-          </div>
+    <div class="auth-card !p-6 hover:shadow-md transition-shadow">
+      <div class="flex items-center gap-5">
+        <div class="icon-container-blue w-14 h-14 shrink-0">
+          <fa-icon [icon]="faUsers" class="text-xl"></fa-icon>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Patients</h2>
+          <p class="text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+            {{ globalStats?.totalPatients || 0 }}
+          </p>
         </div>
       </div>
     </div>
 
     <!-- Active Pharmacies -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-      <div class="p-6">
-        <div class="flex items-center">
-          <div class="p-3 rounded-full bg-green-100 text-green-600">
-            <i class="fas fa-clinic-medical w-6 h-6"></i>
-          </div>
-          <div class="ml-4">
-            <h2 class="text-sm font-medium text-gray-500">Pharmacies Actives</h2>
-            <p class="text-lg font-semibold text-gray-900 mt-1">{{ globalStats?.activePharmacies || 0 }}</p>
-          </div>
+    <div class="auth-card !p-6 hover:shadow-md transition-shadow">
+      <div class="flex items-center gap-5">
+        <div class="icon-container-emerald w-14 h-14 shrink-0">
+          <fa-icon [icon]="faClinicMedical" class="text-xl"></fa-icon>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Pharmacies</h2>
+          <p class="text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+            {{ globalStats?.activePharmacies || 0 }}
+          </p>
         </div>
       </div>
     </div>
 
     <!-- Pending Orders -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-      <div class="p-6">
-        <div class="flex items-center">
-          <div class="p-3 rounded-full bg-orange-100 text-orange-600">
-            <i class="fas fa-shopping-cart w-6 h-6"></i>
-          </div>
-          <div class="ml-4">
-            <h2 class="text-sm font-medium text-gray-500">Commandes en Attente</h2>
-            <p class="text-lg font-semibold text-gray-900 mt-1">{{ globalStats?.pendingOrders || 0 }}</p>
-          </div>
+    <div class="auth-card !p-6 hover:shadow-md transition-shadow">
+      <div class="flex items-center gap-5">
+        <div class="p-3 rounded-2xl bg-amber-50 text-amber-600 w-14 h-14 flex items-center justify-center shrink-0">
+          <fa-icon [icon]="faShoppingCart" class="text-xl"></fa-icon>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">En Attente</h2>
+          <p class="text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+            {{ globalStats?.pendingOrders || 0 }}
+          </p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Recent Activity / Content Placeholder -->
   <!-- Analytics Section -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <!-- Top Sold Medications -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-      <div class="p-6 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">Médicaments les plus vendus</h3>
+    <div class="auth-card !p-0 overflow-hidden">
+      <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+        <h3 class="text-lg font-bold text-slate-900 tracking-tight">Médicaments les plus vendus</h3>
       </div>
       <div class="p-6">
-        <ul class="divide-y divide-gray-200">
-          <li *ngFor="let item of topSold" class="py-4 flex justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-900">{{ item.medicationName }}</p>
-              <p class="text-sm text-gray-500">{{ item.medicationGenericName }}</p>
+        <ul class="divide-y divide-slate-100">
+          <li *ngFor="let item of topSold"
+            class="py-5 flex justify-between items-center group hover:bg-slate-50/50 transition-colors -mx-6 px-6">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500">
+                <fa-icon [icon]="faPills"></fa-icon>
+              </div>
+              <div>
+                <p class="text-sm font-bold text-slate-900">{{ item.medicationName }}</p>
+                <p class="text-xs font-semibold text-slate-500">{{ item.medicationGenericName }}</p>
+              </div>
             </div>
-            <div class="text-sm text-gray-900 font-semibold">{{ item.soldCount }} ventes</div>
+            <div
+              class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+              {{ item.soldCount }} ventes
+            </div>
           </li>
-          <li *ngIf="topSold.length === 0" class="py-4 text-center text-gray-500">Aucune donnée disponible</li>
+          <li *ngIf="topSold.length === 0" class="py-8 text-center">
+            <div class="text-slate-400 mb-2 mt-4">
+              <fa-icon [icon]="faBoxOpen" size="3x"></fa-icon>
+            </div>
+            <p class="text-slate-500 font-medium">Aucune donnée disponible</p>
+          </li>
         </ul>
       </div>
     </div>
 
     <!-- Top Search Trends -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-      <div class="p-6 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">Tendances de recherche</h3>
+    <div class="auth-card !p-0 overflow-hidden">
+      <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+        <h3 class="text-lg font-bold text-slate-900 tracking-tight">Tendances de recherche</h3>
       </div>
       <div class="p-6">
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-3">
           <span *ngFor="let trend of topSearches"
-            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-            {{ trend.query }} ({{ trend.searchCount }})
+            class="inline-flex items-center px-4 py-2 rounded-2xl text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors cursor-default border border-blue-100/50">
+            <fa-icon [icon]="faSearch" class="mr-2 text-blue-400"></fa-icon>
+            {{ trend.query }}
+            <span class="ml-2 px-2 py-0.5 rounded-lg bg-blue-600 text-white text-[10px]">{{ trend.searchCount }}</span>
           </span>
-          <p *ngIf="topSearches.length === 0" class="text-gray-500 w-full text-center">Aucune recherche récente</p>
+          <div *ngIf="topSearches.length === 0" class="w-full py-8 text-center">
+            <div class="text-slate-400 mb-2 mt-4">
+              <fa-icon [icon]="faSearch" size="3x"></fa-icon>
+            </div>
+            <p class="text-slate-500 font-medium">Aucune recherche récente</p>
+          </div>
         </div>
       </div>
     </div>

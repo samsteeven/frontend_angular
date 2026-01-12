@@ -5,14 +5,25 @@ import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
 // import { UserService } from '../../../services/user.service';
 import { AdminService } from '../../../services/admin.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faCoins, faUsers, faClinicMedical, faShoppingCart, faDownload, faPills, faBoxOpen, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FontAwesomeModule],
   templateUrl: './admin-dashboard.component.html'
 })
 export class AdminDashboardComponent implements OnInit {
+  faCoins = faCoins;
+  faUsers = faUsers;
+  faClinicMedical = faClinicMedical;
+  faShoppingCart = faShoppingCart;
+  faDownload = faDownload;
+  faPills = faPills;
+  faBoxOpen = faBoxOpen;
+  faSearch = faSearch;
+
   globalStats: any = null;
   topSold: any[] = [];
   topSearches: any[] = [];

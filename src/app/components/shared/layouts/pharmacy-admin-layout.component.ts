@@ -3,138 +3,165 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@services';
 import { PharmacyService } from '../../../services/pharmacy.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {
+  faPrescriptionBottleAlt,
+  faBars,
+  faTimes,
+  faHome,
+  faSearch,
+  faPlusCircle,
+  faBoxes,
+  faUserNurse,
+  faShoppingCart,
+  faTruck,
+  faCog,
+  faSignOutAlt,
+  faChevronRight,
+  faStoreAlt
+} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-pharmacy-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, FontAwesomeModule],
   template: `
-    <div class="min-h-screen bg-gray-100">
+    <div class="min-h-screen bg-slate-50 font-sans antialiased text-slate-900">
       
       <!-- Mobile Header -->
-      <div class="md:hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between sticky top-0 z-40">
-        <div class="flex items-center gap-2 text-green-600">
-          <i class="fas fa-prescription-bottle-alt text-2xl"></i>
-          <span class="text-xl font-bold tracking-tight text-gray-900">{{ currentUser?.pharmacyName || 'Ma Pharmacie' }}</span>
+      <div class="md:hidden bg-white/80 backdrop-blur-md border-b border-slate-200 p-5 flex items-center justify-between sticky top-0 z-40 transition-all">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
+            <fa-icon [icon]="faPrescriptionBottleAlt" class="text-lg"></fa-icon>
+          </div>
+          <span class="text-lg font-bold tracking-tighter text-slate-900">{{ currentUser?.pharmacyName || 'Terminal' }}</span>
         </div>
-        <button (click)="toggleSidebar()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
-          <i class="fas" [ngClass]="isSidebarOpen ? 'fa-times' : 'fa-bars'"></i>
+        <button (click)="toggleSidebar()" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-white hover:text-indigo-600 transition-all border border-slate-100">
+          <fa-icon [icon]="isSidebarOpen ? faTimes : faBars"></fa-icon>
         </button>
       </div>
 
-      <!-- Sidebar Backdrop (Mobile) -->
+      <!-- Private Sidebar Backdrop -->
       <div *ngIf="isSidebarOpen" (click)="toggleSidebar()" 
-           class="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-opacity"></div>
+           class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 md:hidden animate-fadeIn"></div>
 
-      <!-- Sidebar -->
-      <aside [ngClass]="{'translate-x-0': isSidebarOpen, '-translate-x-full': !isSidebarOpen}"
-             class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0">
+      <!-- Professional Sidebar -->
+      <aside [ngClass]="{'translate-x-0 shadow-2xl': isSidebarOpen, '-translate-x-full': !isSidebarOpen}"
+             class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 flex flex-col transition-all duration-500 md:translate-x-0">
         
-        <!-- Logo (Desktop) -->
-        <div class="hidden md:flex h-16 items-center px-6 border-b border-gray-200">
-          <div class="flex items-center gap-2 text-green-600">
-            <i class="fas fa-prescription-bottle-alt text-2xl"></i>
-            <span class="text-xl font-bold tracking-tight text-gray-900">{{ pharmacyName || 'Ma Pharmacie' }}</span>
+        <!-- Premium Logo Area -->
+        <div class="h-24 flex items-center px-8 border-b border-slate-50">
+          <div class="flex items-center gap-4 group">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-xl shadow-indigo-100 group-hover:scale-110 transition-transform duration-300">
+              <fa-icon [icon]="faPrescriptionBottleAlt" class="text-xl"></fa-icon>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs font-bold text-indigo-600 uppercase tracking-[0.2em] leading-none mb-1">Medicam Hub</span>
+              <span class="text-sm font-bold text-slate-900 tracking-tighter leading-none truncate max-w-[140px]">{{ pharmacyName || 'Pharmacy' }}</span>
+            </div>
           </div>
         </div>
 
-        <!-- Navigation -->
-        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Principal</p>
+        <!-- Semantic Navigation -->
+        <nav class="flex-1 px-5 py-8 space-y-8 overflow-y-auto overflow-x-hidden">
           
-          <ng-container *ngIf="currentUser?.role === 'PHARMACY_ADMIN'">
-            <a routerLink="/pharmacy-admin/dashboard" routerLinkActive="bg-green-50 text-green-600" (click)="closeSidebar()"
-               class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-green-600 transition-colors group">
-              <i class="fas fa-home w-5 h-5 mr-3 text-gray-400 group-hover:text-green-500 group-[.text-green-600]:text-green-600 transition-colors"></i>
-              Aperçu (Admin)
+          <div class="space-y-1">
+            <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Dashboard</p>
+            
+            <ng-container *ngIf="currentUser?.role === 'PHARMACY_ADMIN'">
+              <a routerLink="/pharmacy-admin/dashboard" routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
+                 class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
+                <fa-icon [icon]="faHome" class="w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
+                <span>Pilotage Global</span>
+                <fa-icon [icon]="faChevronRight" class="ml-auto text-[8px] opacity-0 group-hover:opacity-100 transition-all transform translate-x-1"></fa-icon>
+              </a>
+              <a routerLink="/pharmacy-admin/global-search" routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
+                 class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
+                <fa-icon [icon]="faSearch" class="w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
+                <span>Recherche Smart</span>
+              </a>
+            </ng-container>
+
+            <ng-container *ngIf="currentUser?.role === 'PHARMACY_EMPLOYEE'">
+              <a routerLink="/pharmacy/dashboard" routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
+                 class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
+                <fa-icon [icon]="faHome" class="w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
+                <span>Terminal Vendeur</span>
+              </a>
+            </ng-container>
+          </div>
+
+          <div class="space-y-1">
+            <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Opérations</p>
+
+            <ng-container *ngIf="currentUser?.role === 'PHARMACY_ADMIN'">
+              <a *ngIf="!currentUser?.pharmacyId" routerLink="/pharmacy-admin/create-pharmacy" routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
+                 class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
+                <fa-icon [icon]="faPlusCircle" class="w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
+                <span>Initier Pharmacie</span>
+              </a>
+
+              <a *ngIf="currentUser?.pharmacyId" routerLink="/pharmacy-admin/inventory" routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
+                 class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
+                <fa-icon [icon]="faBoxes" class="w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
+                <span>Stock & Inventaire</span>
+              </a>
+
+              <a *ngIf="currentUser?.pharmacyId" routerLink="/pharmacy-admin/employees" routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
+                 class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
+                <fa-icon [icon]="faUserNurse" class="w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
+                <span>Équipe Médicale</span>
+              </a>
+            </ng-container>
+
+            <a [routerLink]="currentUser?.role === 'PHARMACY_ADMIN' ? '/pharmacy-admin/orders' : '/pharmacy/orders'" 
+               routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
+               class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
+              <fa-icon [icon]="faShoppingCart" class="w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
+              <span>Flux Commandes</span>
             </a>
-            <a routerLink="/pharmacy-admin/global-search" routerLinkActive="bg-green-50 text-green-600" (click)="closeSidebar()"
-               class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-green-600 transition-colors group">
-              <i class="fas fa-search w-5 h-5 mr-3 text-gray-400 group-hover:text-green-500 group-[.text-green-600]:text-green-600 transition-colors"></i>
-              Recherche Globale
+
+            <a *ngIf="currentUser?.role === 'PHARMACY_EMPLOYEE' || currentUser?.role === 'DELIVERY'" 
+               routerLink="/pharmacy/deliveries" routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
+               class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
+               <fa-icon [icon]="faTruck" class="w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
+               <span>Logistique Urbaine</span>
             </a>
-          </ng-container>
+          </div>
 
-          <ng-container *ngIf="currentUser?.role === 'PHARMACY_EMPLOYEE'">
-            <a routerLink="/pharmacy/dashboard" routerLinkActive="bg-green-50 text-green-600" (click)="closeSidebar()"
-               class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-green-600 transition-colors group">
-              <i class="fas fa-home w-5 h-5 mr-3 text-gray-400 group-hover:text-green-500 group-[.text-green-600]:text-green-600 transition-colors"></i>
-              Aperçu
+          <div class="space-y-1" *ngIf="currentUser?.role === 'PHARMACY_ADMIN'">
+            <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Système</p>
+            <a routerLink="/pharmacy-admin/settings" routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
+               class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
+              <fa-icon [icon]="faCog" class="sidebar-icon w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
+              <span>Paramétrage</span>
             </a>
-          </ng-container>
-
-          <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Gestion</p>
-
-          <!-- ADMIN ONLY -->
-          <ng-container *ngIf="currentUser?.role === 'PHARMACY_ADMIN'">
-            <!-- Create Pharmacy (only if no pharmacy exists) -->
-            <a *ngIf="!currentUser?.pharmacyId" routerLink="/pharmacy-admin/create-pharmacy" routerLinkActive="bg-green-50 text-green-600" (click)="closeSidebar()"
-               class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-green-600 transition-colors group">
-              <i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400 group-hover:text-green-500 group-[.text-green-600]:text-green-600 transition-colors"></i>
-              Créer Pharmacie
-            </a>
-
-            <!-- Inventory (only if pharmacy exists) -->
-            <a *ngIf="currentUser?.pharmacyId" routerLink="/pharmacy-admin/inventory" routerLinkActive="bg-green-50 text-green-600" (click)="closeSidebar()"
-               class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-green-600 transition-colors group">
-              <i class="fas fa-boxes w-5 h-5 mr-3 text-gray-400 group-hover:text-green-500 group-[.text-green-600]:text-green-600 transition-colors"></i>
-              Inventaire
-            </a>
-
-            <!-- Employees (only if pharmacy exists) -->
-            <a *ngIf="currentUser?.pharmacyId" routerLink="/pharmacy-admin/employees" routerLinkActive="bg-green-50 text-green-600" (click)="closeSidebar()"
-               class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-green-600 transition-colors group">
-              <i class="fas fa-user-nurse w-5 h-5 mr-3 text-gray-400 group-hover:text-green-500 group-[.text-green-600]:text-green-600 transition-colors"></i>
-              Employés
-            </a>
-          </ng-container>
-
-          <!-- SHARED / ADAPTED ROUTES -->
-          <a [routerLink]="currentUser?.role === 'PHARMACY_ADMIN' ? '/pharmacy-admin/orders' : '/pharmacy/orders'" 
-             routerLinkActive="bg-green-50 text-green-600" (click)="closeSidebar()"
-             class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-green-600 transition-colors group">
-            <i class="fas fa-shopping-cart w-5 h-5 mr-3 text-gray-400 group-hover:text-green-500 group-[.text-green-600]:text-green-600 transition-colors"></i>
-            Commandes
-          </a>
-
-          <a *ngIf="currentUser?.role === 'PHARMACY_EMPLOYEE'" 
-             routerLink="/pharmacy/deliveries" routerLinkActive="bg-green-50 text-green-600" (click)="closeSidebar()"
-             class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-green-600 transition-colors group">
-             <i class="fas fa-truck w-5 h-5 mr-3 text-gray-400 group-hover:text-green-500 group-[.text-green-600]:text-green-600 transition-colors"></i>
-             Livraisons
-          </a>
-
-          <!-- ADMIN ONLY -->
-          <a *ngIf="currentUser?.role === 'PHARMACY_ADMIN'" 
-             routerLink="/pharmacy-admin/settings" routerLinkActive="bg-green-50 text-green-600" (click)="closeSidebar()"
-             class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-green-600 transition-colors group">
-            <i class="fas fa-cog w-5 h-5 mr-3 text-gray-400 group-hover:text-green-500 group-[.text-green-600]:text-green-600 transition-colors"></i>
-            Paramètres
-          </a>
+          </div>
         </nav>
 
-        <!-- User Profile & Logout -->
-        <div class="border-t border-gray-200 p-4 bg-gray-50">
-          <a routerLink="/profile" (click)="closeSidebar()" class="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity">
-            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-sm">
+        <!-- Identity Section -->
+        <div class="p-6 border-t border-slate-50 bg-slate-50/30">
+          <div class="auth-card !p-4 !border-none !shadow-sm flex items-center gap-4 mb-4 hover:shadow-md transition-all cursor-pointer"
+               [routerLink]="currentUser?.role === 'PHARMACY_ADMIN' ? '/pharmacy-admin/profile' : '/pharmacy/profile'" (click)="closeSidebar()">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs border border-indigo-100">
               {{ currentUser?.firstName?.charAt(0) }}{{ currentUser?.lastName?.charAt(0) }}
             </div>
-            <div>
-              <p class="font-medium text-sm text-gray-900">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</p>
-              <p class="text-xs text-gray-500">{{ currentUser?.role }}</p>
+            <div class="min-w-0">
+              <p class="text-xs font-bold text-slate-900 tracking-tight truncate">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</p>
+              <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] mt-0.5 truncate">{{ currentUser?.role?.replace('PHARMACY_', '') }}</p>
             </div>
-          </a>
+          </div>
           
-          <button (click)="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
-            <i class="fas fa-sign-out-alt text-gray-500"></i>
+          <button (click)="logout()" class="w-full h-12 flex items-center justify-center gap-3 px-4 rounded-2xl text-[10px] font-bold text-rose-600 uppercase tracking-widest bg-rose-50/50 hover:bg-rose-50 hover:text-rose-700 transition-all border border-rose-100/50">
+            <fa-icon [icon]="faSignOutAlt" class="text-xs"></fa-icon>
             Déconnexion
           </button>
         </div>
       </aside>
 
-      <!-- Main Content -->
-      <main class="md:ml-64 min-h-screen p-4 md:p-8 transition-all duration-300">
-        <div class="max-w-7xl mx-auto">
+      <!-- Dynamic Content Injection -->
+      <main class="md:ml-72 min-h-screen transition-all duration-500 ease-in-out">
+        <div class="max-w-[1600px] mx-auto min-h-screen border-l border-slate-50 bg-white">
           <router-outlet></router-outlet>
         </div>
       </main>
@@ -142,6 +169,21 @@ import { PharmacyService } from '../../../services/pharmacy.service';
   `
 })
 export class PharmacyAdminLayoutComponent implements OnInit {
+  faPrescriptionBottleAlt = faPrescriptionBottleAlt;
+  faBars = faBars;
+  faTimes = faTimes;
+  faHome = faHome;
+  faSearch = faSearch;
+  faPlusCircle = faPlusCircle;
+  faBoxes = faBoxes;
+  faUserNurse = faUserNurse;
+  faShoppingCart = faShoppingCart;
+  faTruck = faTruck;
+  faCog = faCog;
+  faSignOutAlt = faSignOutAlt;
+  faChevronRight = faChevronRight;
+  faStoreAlt = faStoreAlt;
+
   isSidebarOpen = false;
   currentUser: any = null;
   pharmacyName: string = '';

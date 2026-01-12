@@ -13,15 +13,18 @@
 }
 
 .footer-section h3 {
-  color: #4ade80;
-  margin-bottom: 16px;
+  color: #ffffff;
+  margin-bottom: 20px;
   font-size: 1.5rem;
 }
 
 .footer-section h4 {
-  color: #cbd5e1;
-  margin-bottom: 16px;
-  font-size: 1.1rem;
+  color: #f1f5f9;
+  margin-bottom: 20px;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 800;
 }
 
 .footer-section p {
@@ -44,7 +47,8 @@
 }
 
 .footer-section ul li a:hover {
-  color: #4ade80;
+  color: #6366f1;
+  /* Indigo */
 }
 
 .footer-bottom {

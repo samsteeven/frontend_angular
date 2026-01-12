@@ -73,7 +73,8 @@ export const routes: Routes = [
       { path: 'employees', component: EmployeeManagementComponent },
       { path: 'orders', component: OrderManagementComponent }, // Shared with staff but accessible here too
       { path: 'inventory', component: InventoryManagementComponent },
-      { path: 'settings', loadComponent: () => import('./components/pharmacy/settings/pharmacy-settings.component').then(m => m.PharmacySettingsComponent) }
+      { path: 'settings', loadComponent: () => import('./components/pharmacy/settings/pharmacy-settings.component').then(m => m.PharmacySettingsComponent) },
+      { path: 'profile', component: ProfileComponent }
     ]
   },
 
@@ -86,16 +87,12 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: PharmacyDashboardComponent },
       { path: 'orders', component: OrderManagementComponent },
-      { path: 'deliveries', component: DeliveryManagementComponent }
+      { path: 'deliveries', component: DeliveryManagementComponent },
+      { path: 'profile', component: ProfileComponent }
     ]
   },
 
-  // Global profile route
-  {
-    path: 'profile',
-    component: ProfileComponent,
-    canActivate: [authGuard]
-  },
+  // No longer using global profile route as it breaks layout context
 
   {
     path: 'my-prescriptions',
