@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PharmacyService } from '../../../services/pharmacy.service';
 import { AuthService } from '../../../services/auth.service';
+import { EmployeePermissionService, EmployeePermission } from '../../../services/employee-permission.service';
 import { User, RegisterRequest } from '../../../models/user.model';
 
 @Component({
@@ -25,9 +26,16 @@ export class EmployeeManagementComponent implements OnInit {
     employeeToDelete: User | null = null;
     isDeleteModalOpen = false;
 
+    // Permission Modal State
+    isPermissionModalOpen = false;
+    selectedEmployee: User | null = null;
+    employeePermissions: EmployeePermission | null = null;
+    isLoadingPermissions = false;
+
     constructor(
         private pharmacyService: PharmacyService,
         private authService: AuthService,
+        private permissionService: EmployeePermissionService,
         private fb: FormBuilder
     ) {
         this.addForm = this.fb.group({
@@ -147,5 +155,48 @@ export class EmployeeManagementComponent implements OnInit {
                 }
             });
         }
+    }
+
+    // Permission Management Methods
+    openPermissionModal(employee: User): void {
+        this.selectedEmployee = employee;
+        this.isPermissionModalOpen = true;
+        this.isLoadingPermissions = true;
+
+        this.permissionService.getPermissions(employee.id).subscribe({
+            next: (permissions) => {
+                this.employeePermissions = permissions;
+                this.isLoadingPermissions = false;
+            },
+            error: (err) => {
+                console.error('Error loading permissions', err);
+                this.isLoadingPermissions = false;
+                alert('Erreur lors du chargement des permissions');
+            }
+        });
+    }
+
+    closePermissionModal(): void {
+        this.isPermissionModalOpen = false;
+        this.selectedEmployee = null;
+        this.employeePermissions = null;
+    }
+
+    savePermissions(): void {
+        if (!this.selectedEmployee || !this.employeePermissions) return;
+
+        this.isSaving = true;
+        this.permissionService.updatePermissions(this.selectedEmployee.id, this.employeePermissions).subscribe({
+            next: () => {
+                this.isSaving = false;
+                this.closePermissionModal();
+                alert('Permissions mises à jour avec succès !');
+            },
+            error: (err) => {
+                console.error('Error updating permissions', err);
+                this.isSaving = false;
+                alert('Erreur lors de la mise à jour des permissions');
+            }
+        });
     }
 }

@@ -5,6 +5,7 @@ import { AuthService } from '../../../services/auth.service';
 import { OrderService } from '../../../services/order.service';
 import { Order, OrderStatus } from '../../../models/order.model';
 import { DeliveryAssignmentService, Courier } from '../../../services/delivery-assignment.service';
+import { EmployeePermissionService } from '../../../services/employee-permission.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faSearch,
@@ -179,7 +180,7 @@ import {
                 <span class="text-[10px] font-bold uppercase tracking-widest">Aviser Client</span>
               </button>
 
-              <button *ngIf="order.status === 'READY'" 
+              <button *ngIf="order.status === 'READY' && canAssignDeliveries" 
                       (click)="openAssignModal(order)"
                       class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl flex justify-center items-center gap-3 transition-all shadow-lg shadow-indigo-100">
                 <fa-icon [icon]="faUserTie"></fa-icon>
@@ -304,15 +305,38 @@ export class OrderManagementComponent implements OnInit {
   availableCouriers: Courier[] = [];
   selectedCourierId: string = '';
   isAssigning = false;
+  canAssignDeliveries = true;
+  canPrepareOrders = true;
 
   constructor(
     private orderService: OrderService,
     private authService: AuthService,
-    private deliveryService: DeliveryAssignmentService
+    private deliveryService: DeliveryAssignmentService,
+    private permissionService: EmployeePermissionService
   ) { }
 
   ngOnInit(): void {
     this.loadOrders();
+    this.checkPermissions();
+  }
+
+  checkPermissions(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) return;
+
+    if (currentUser.role === 'PHARMACY_ADMIN' || currentUser.role === 'SUPER_ADMIN') {
+      this.canAssignDeliveries = true;
+      this.canPrepareOrders = true;
+      return;
+    }
+
+    this.permissionService.getPermissions(currentUser.id).subscribe({
+      next: (perms) => {
+        this.canAssignDeliveries = perms.canAssignDeliveries;
+        this.canPrepareOrders = perms.canPrepareOrders;
+      },
+      error: (err) => console.error('Error checking permissions', err)
+    });
   }
 
   loadOrders(): void {

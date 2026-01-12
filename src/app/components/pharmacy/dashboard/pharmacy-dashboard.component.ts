@@ -5,6 +5,7 @@ import { PharmacyService } from '../../../services/pharmacy.service';
 import { OrderService } from '../../../services/order.service';
 import { Pharmacy } from '../../../models/pharmacy.model';
 import { Order, OrderStatus } from '../../../models/order.model';
+import { EmployeePermissionService } from '../../../services/employee-permission.service';
 import { Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
@@ -50,6 +51,7 @@ export class PharmacyDashboardComponent implements OnInit {
         private authService: AuthService,
         private pharmacyService: PharmacyService,
         private orderService: OrderService,
+        private permissionService: EmployeePermissionService,
         private router: Router
     ) {
         // Initialize with basic user data from localStorage
@@ -127,7 +129,7 @@ export class PharmacyDashboardComponent implements OnInit {
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .slice(0, 5);
 
-                this.calculateStatistics(orders);
+                this.loadBackendStatistics(pharmacyId);
                 this.isLoading = false;
             },
             error: (err) => {
@@ -138,34 +140,44 @@ export class PharmacyDashboardComponent implements OnInit {
         });
     }
 
-    calculateStatistics(orders: Order[]): void {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+    loadBackendStatistics(pharmacyId: string): void {
+        const userId = this.currentUser?.id;
+        if (!userId) return;
 
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
+        this.permissionService.getStatistics(userId).subscribe({
+            next: (stats) => {
+                this.dailyOrdersCount = stats.dailyOrders || 0;
+                this.monthlyRevenue = stats.monthlyRevenue || 0;
+                this.activeDeliveriesCount = stats.activeDeliveries || 0;
+                // lowStockCount is still from local inventory check for better precision
+            },
+            error: (err) => console.error('Error loading backend stats', err)
+        });
+    }
 
-        // 1. Daily Orders (Today)
-        this.dailyOrdersCount = orders.filter(o => {
-            const orderDate = new Date(o.createdAt);
-            orderDate.setHours(0, 0, 0, 0);
-            return orderDate.getTime() === today.getTime();
-        }).length;
+    exportReport(): void {
+        const userId = this.currentUser?.id;
+        if (!userId) return;
 
-        // 2. Monthly Revenue
-        this.monthlyRevenue = orders
-            .filter(o => {
-                const orderDate = new Date(o.createdAt);
-                return orderDate.getMonth() === currentMonth &&
-                    orderDate.getFullYear() === currentYear &&
-                    o.status !== OrderStatus.CANCELLED;
-            })
-            .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+        const endDate = new Date().toISOString().split('T')[0];
+        const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // 30 days ago
 
-        // 3. Active Deliveries (In Transit)
-        this.activeDeliveriesCount = orders.filter(o =>
-            o.status === OrderStatus.DELIVERING || o.status === OrderStatus.READY
-        ).length;
+        this.permissionService.exportReport(userId, startDate, endDate).subscribe({
+            next: (blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `rapport-activite-${userId}-${endDate}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            },
+            error: (err) => {
+                console.error('Error exporting report', err);
+                alert('Erreur lors de la génération du rapport.');
+            }
+        });
     }
 
     formatStatus(status: string): string {

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@services';
 import { PharmacyService } from '../../../services/pharmacy.service';
+import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faPrescriptionBottleAlt,
@@ -18,13 +19,14 @@ import {
   faCog,
   faSignOutAlt,
   faChevronRight,
-  faStoreAlt
+  faStoreAlt,
+  faHistory
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-pharmacy-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, FontAwesomeModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, FontAwesomeModule, NotificationBellComponent],
   template: `
     <div class="min-h-screen bg-slate-50 font-sans antialiased text-slate-900">
       
@@ -36,9 +38,12 @@ import {
           </div>
           <span class="text-lg font-bold tracking-tighter text-slate-900">{{ currentUser?.pharmacyName || 'Terminal' }}</span>
         </div>
-        <button (click)="toggleSidebar()" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-white hover:text-indigo-600 transition-all border border-slate-100">
-          <fa-icon [icon]="isSidebarOpen ? faTimes : faBars"></fa-icon>
-        </button>
+        <div class="flex items-center gap-4">
+          <app-notification-bell></app-notification-bell>
+          <button (click)="toggleSidebar()" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-white hover:text-indigo-600 transition-all border border-slate-100">
+            <fa-icon [icon]="isSidebarOpen ? faTimes : faBars"></fa-icon>
+          </button>
+        </div>
       </div>
 
       <!-- Private Sidebar Backdrop -->
@@ -50,7 +55,7 @@ import {
              class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 flex flex-col transition-all duration-500 md:translate-x-0">
         
         <!-- Premium Logo Area -->
-        <div class="h-24 flex items-center px-8 border-b border-slate-50">
+        <div class="h-24 flex items-center px-8 border-b border-slate-50 justify-between">
           <div class="flex items-center gap-4 group">
             <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-xl shadow-indigo-100 group-hover:scale-110 transition-transform duration-300">
               <fa-icon [icon]="faPrescriptionBottleAlt" class="text-xl"></fa-icon>
@@ -60,6 +65,7 @@ import {
               <span class="text-sm font-bold text-slate-900 tracking-tighter leading-none truncate max-w-[140px]">{{ pharmacyName || 'Pharmacy' }}</span>
             </div>
           </div>
+          <app-notification-bell class="hidden md:block"></app-notification-bell>
         </div>
 
         <!-- Semantic Navigation -->
@@ -131,6 +137,11 @@ import {
 
           <div class="space-y-1" *ngIf="currentUser?.role === 'PHARMACY_ADMIN'">
             <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Système</p>
+            <a routerLink="/pharmacy-admin/audit-logs" routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
+               class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
+              <fa-icon [icon]="faHistory" class="sidebar-icon w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
+              <span>Logs d'Audit</span>
+            </a>
             <a routerLink="/pharmacy-admin/settings" routerLinkActive="bg-indigo-50/50 text-indigo-600 shadow-sm shadow-indigo-100/50" (click)="closeSidebar()"
                class="flex items-center px-4 py-3 text-xs font-bold text-slate-500 rounded-2xl transition-all duration-300 uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 group">
               <fa-icon [icon]="faCog" class="sidebar-icon w-5 h-5 mr-4 text-slate-300 group-hover:text-indigo-500 transition-colors"></fa-icon>
@@ -183,6 +194,7 @@ export class PharmacyAdminLayoutComponent implements OnInit {
   faSignOutAlt = faSignOutAlt;
   faChevronRight = faChevronRight;
   faStoreAlt = faStoreAlt;
+  faHistory = faHistory;
 
   isSidebarOpen = false;
   currentUser: any = null;

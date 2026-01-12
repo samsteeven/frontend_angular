@@ -74,57 +74,22 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   exportData(): void {
-    // Prepare CSV content
-    const csvContent = this.generateCSV();
-
-    // Create blob and download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', `medicam-dashboard-${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    this.adminService.exportGlobalReport().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `rapport-global-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      },
+      error: (err) => {
+        console.error('Error exporting global report', err);
+        alert('Erreur lors de la génération du rapport.');
+      }
+    });
   }
 
-  private generateCSV(): string {
-    let csv = '';
-
-    // Header
-    csv += 'MEDICAM - Rapport du Tableau de Bord\n';
-    csv += `Date d'export: ${new Date().toLocaleString('fr-FR')}\n\n`;
-
-    // Global Statistics
-    csv += 'STATISTIQUES GLOBALES\n';
-    csv += 'Indicateur,Valeur\n';
-    if (this.globalStats) {
-      csv += `Revenu Total,${this.globalStats.totalRevenue || 0} FCFA\n`;
-      csv += `Commandes Totales,${this.globalStats.totalOrders || 0}\n`;
-      csv += `Commandes en Attente,${this.globalStats.pendingOrders || 0}\n`;
-      csv += `Pharmacies Actives,${this.globalStats.activePharmacies || 0}\n`;
-      csv += `Patients Totaux,${this.globalStats.totalPatients || 0}\n`;
-    }
-    csv += '\n';
-
-    // Top Sold Medications
-    csv += 'TOP MEDICAMENTS VENDUS\n';
-    csv += 'Rang,Nom,Quantité Vendue\n';
-    this.topSold.forEach((med, index) => {
-      csv += `${index + 1},${med.name || 'N/A'},${med.soldCount || 0}\n`;
-    });
-    csv += '\n';
-
-    // Top Searches
-    csv += 'TOP RECHERCHES\n';
-    csv += 'Rang,Terme de Recherche,Nombre de Recherches\n';
-    this.topSearches.forEach((search, index) => {
-      csv += `${index + 1},${search.searchTerm || 'N/A'},${search.searchCount || 0}\n`;
-    });
-
-    return csv;
-  }
 }
