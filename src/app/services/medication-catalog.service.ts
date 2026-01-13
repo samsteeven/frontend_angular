@@ -12,6 +12,7 @@ export interface PatientMedicationSearchResult {
     medicationPhotoUrl?: string;
     price: number;
     isAvailable: boolean;
+    expiryDate?: string;
     pharmacy: Pharmacy;
     distanceKm?: number;
 }

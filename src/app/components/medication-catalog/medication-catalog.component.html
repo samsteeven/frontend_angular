@@ -57,7 +57,7 @@
 
         <div class="mt-6 flex items-center">
             <label class="relative flex items-center cursor-pointer group">
-                <input type="checkbox" [(ngModel)]="prescriptionOnly" (change)="onFilter()" class="sr-only">
+                <input type="checkbox" [(ngModel)]="prescriptionOnly" (change)="onFilter()" class="sr-only peer">
                 <div
                     class="w-10 h-6 bg-slate-200 rounded-full transition-colors group-hover:bg-slate-300 peer-checked:bg-indigo-600">
                 </div>
@@ -184,6 +184,13 @@
                         </div>
                     </div>
 
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Date
+                            d'expiration</label>
+                        <input type="date" [(ngModel)]="addExpiryDate" name="expiryDate"
+                            class="form-input !py-3 font-bold">
+                    </div>
+
                     <div class="mt-10 flex gap-4">
                         <button type="button" (click)="closeModal()"
                             class="flex-1 px-6 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-100 transition-all">
@@ -278,7 +285,7 @@
                     <div class="flex items-center">
                         <label class="relative flex items-center cursor-pointer group">
                             <input type="checkbox" [(ngModel)]="newMedication.requiresPrescription"
-                                name="requiresPrescription" class="sr-only">
+                                name="requiresPrescription" class="sr-only peer">
                             <div
                                 class="w-10 h-6 bg-slate-200 rounded-full transition-colors group-hover:bg-slate-300 peer-checked:bg-amber-500">
                             </div>

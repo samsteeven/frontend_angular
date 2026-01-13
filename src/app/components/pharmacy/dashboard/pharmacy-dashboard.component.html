@@ -154,142 +154,167 @@
                     </div>
                 </div>
 
-                <!-- Active Deliveries -->
-                <div class="auth-card !p-8 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
+                <!-- Expiring Soon -->
+                <div
+                    class="auth-card !p-8 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group !border-amber-100 bg-gradient-to-br from-amber-50/20 to-transparent">
                     <div class="flex flex-col gap-6">
-                        <div class="icon-container-indigo w-14 h-14 group-hover:scale-110 transition-transform">
-                            <fa-icon [icon]="faTruck" class="text-xl"></fa-icon>
-                        </div>
-                        <div>
-                            <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Flux Actifs
-                            </h2>
-                            <p class="text-4xl font-bold text-slate-900 tracking-tighter mt-1">{{ activeDeliveriesCount
-                                }}</p>
-                            <div class="mt-3 flex items-center gap-2">
-                                <div class="flex -space-x-2">
-                                    <div class="w-5 h-5 rounded-full bg-slate-200 border border-white"></div>
-                                    <div class="w-5 h-5 rounded-full bg-slate-300 border border-white"></div>
-                                </div>
-                                <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">En
-                                    préparation / transit</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Activity & Info -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Recent Orders Table/List -->
-                <div class="lg:col-span-2 auth-card !p-0 overflow-hidden group">
-                    <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex justify-between items-end">
-                        <div>
-                            <h3 class="text-xl font-semibold text-slate-900 tracking-tight">Activité Récente</h3>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Dernières
-                                commandes traitées</p>
-                        </div>
-                        <button
-                            [routerLink]="currentUser?.role === 'PHARMACY_ADMIN' ? '/pharmacy-admin/audit-logs' : null"
-                            class="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800 transition-colors flex items-center gap-2">
-                            Journaux d'Audit <fa-icon [icon]="faHistory" class="text-[8px]"></fa-icon>
-                        </button>
-                    </div>
-                    <div class="p-8">
-                        <!-- Recent Activity List -->
-                        <div *ngIf="recentOrders.length > 0" class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="text-left border-b border-slate-100 pb-4">
-                                        <th
-                                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4">
-                                            ID Flux</th>
-                                        <th
-                                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4">
-                                            Client / Destination</th>
-                                        <th
-                                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4 text-right">
-                                            Montant</th>
-                                        <th
-                                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4 text-right">
-                                            Statut</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-50">
-                                    <tr *ngFor="let order of recentOrders"
-                                        class="group/row hover:bg-slate-50/50 transition-colors">
-                                        <td class="py-5">
-                                            <span
-                                                class="text-xs font-bold text-slate-900 group-hover/row:text-indigo-600 transition-colors uppercase">#{{
-                                                order.id.slice(0, 8) }}</span>
-                                            <p class="text-[9px] text-slate-400 mt-1 uppercase">{{ order.createdAt |
-                                                date:'HH:mm' }}</p>
-                                        </td>
-                                        <td class="py-5">
-                                            <p class="text-xs font-semibold text-slate-700 truncate max-w-[200px]">{{
-                                                order.deliveryAddress }}</p>
-                                        </td>
-                                        <td class="py-5 text-right font-bold text-slate-900 text-sm">
-                                            {{ order.totalAmount | number:'1.0-0' }} <span
-                                                class="text-[10px] text-slate-400">XAF</span>
-                                        </td>
-                                        <td class="py-5 text-right">
-                                            <span [ngClass]="getStatusColor(order.status)"
-                                                class="inline-flex px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border">
-                                                {{ formatStatus(order.status) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Empty State for Recent Activity -->
-                        <div *ngIf="recentOrders.length === 0"
-                            class="text-center py-20 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
-                            <div class="icon-container-blue w-16 h-16 mb-6 !bg-white !text-slate-200 mx-auto">
-                                <fa-icon [icon]="faHistory" class="text-2xl"></fa-icon>
-                            </div>
-                            <h4 class="text-slate-900 font-extrabold tracking-tight">Historique Vierge</h4>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Aucun
-                                mouvement détecté dans les dernières 24h</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pharmacy Info Sidecard -->
-                <div class="auth-card !p-8">
-                    <div class="flex items-center gap-5 mb-10">
                         <div
-                            class="w-14 h-14 rounded-2xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                            <fa-icon [icon]="faStore" class="text-xl"></fa-icon>
+                            class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                            <fa-icon [icon]="faClock" class="text-xl"></fa-icon>
                         </div>
                         <div>
-                            <h4 class="text-lg font-black tracking-tight text-slate-900">Terminal Actif</h4>
-                            <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Connecté</p>
+                            <h2 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Péremptions
+                                Imminentes</h2>
+                            <p class="text-4xl font-bold text-amber-600 tracking-tighter mt-1">{{ expiringSoonCount |
+                                number:'2.0-0' }}</p>
+                            <div
+                                class="mt-3 text-[10px] font-bold text-amber-500 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100 inline-block">
+                                {{ expiringSoonCount > 0 ? '< 90 jours' : 'Check OK' }} </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="space-y-6">
-                        <div>
-                            <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">
-                                Administrateur</p>
-                            <p class="text-sm font-bold tracking-tight text-slate-900">{{ currentUser?.firstName }}
-                                {{ currentUser?.lastName }}</p>
+                    <!-- Active Deliveries -->
+                    <div class="auth-card !p-8 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
+                        <div class="flex flex-col gap-6">
+                            <div class="icon-container-indigo w-14 h-14 group-hover:scale-110 transition-transform">
+                                <fa-icon [icon]="faTruck" class="text-xl"></fa-icon>
+                            </div>
+                            <div>
+                                <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Flux Actifs
+                                </h2>
+                                <p class="text-4xl font-bold text-slate-900 tracking-tighter mt-1">{{
+                                    activeDeliveriesCount
+                                    }}</p>
+                                <div class="mt-3 flex items-center gap-2">
+                                    <div class="flex -space-x-2">
+                                        <div class="w-5 h-5 rounded-full bg-slate-200 border border-white"></div>
+                                        <div class="w-5 h-5 rounded-full bg-slate-300 border border-white"></div>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">En
+                                        préparation / transit</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & Info -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Recent Orders Table/List -->
+                    <div class="lg:col-span-2 auth-card !p-0 overflow-hidden group">
+                        <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex justify-between items-end">
+                            <div>
+                                <h3 class="text-xl font-semibold text-slate-900 tracking-tight">Activité Récente</h3>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Dernières
+                                    commandes traitées</p>
+                            </div>
+                            <button
+                                [routerLink]="currentUser?.role === 'PHARMACY_ADMIN' ? '/pharmacy-admin/audit-logs' : null"
+                                class="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800 transition-colors flex items-center gap-2">
+                                Journaux d'Audit <fa-icon [icon]="faHistory" class="text-[8px]"></fa-icon>
+                            </button>
+                        </div>
+                        <div class="p-8">
+                            <!-- Recent Activity List -->
+                            <div *ngIf="recentOrders.length > 0" class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="text-left border-b border-slate-100 pb-4">
+                                            <th
+                                                class="text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4">
+                                                ID Flux</th>
+                                            <th
+                                                class="text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4">
+                                                Client / Destination</th>
+                                            <th
+                                                class="text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4 text-right">
+                                                Montant</th>
+                                            <th
+                                                class="text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4 text-right">
+                                                Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-50">
+                                        <tr *ngFor="let order of recentOrders"
+                                            class="group/row hover:bg-slate-50/50 transition-colors">
+                                            <td class="py-5">
+                                                <span
+                                                    class="text-xs font-bold text-slate-900 group-hover/row:text-indigo-600 transition-colors uppercase">#{{
+                                                    order.id.slice(0, 8) }}</span>
+                                                <p class="text-[9px] text-slate-400 mt-1 uppercase">{{ order.createdAt |
+                                                    date:'HH:mm' }}</p>
+                                            </td>
+                                            <td class="py-5">
+                                                <p class="text-xs font-semibold text-slate-700 truncate max-w-[200px]">
+                                                    {{
+                                                    order.deliveryAddress }}</p>
+                                            </td>
+                                            <td class="py-5 text-right font-bold text-slate-900 text-sm">
+                                                {{ order.totalAmount | number:'1.0-0' }} <span
+                                                    class="text-[10px] text-slate-400">XAF</span>
+                                            </td>
+                                            <td class="py-5 text-right">
+                                                <span [ngClass]="getStatusColor(order.status)"
+                                                    class="inline-flex px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border">
+                                                    {{ formatStatus(order.status) }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Empty State for Recent Activity -->
+                            <div *ngIf="recentOrders.length === 0"
+                                class="text-center py-20 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                                <div class="icon-container-blue w-16 h-16 mb-6 !bg-white !text-slate-200 mx-auto">
+                                    <fa-icon [icon]="faHistory" class="text-2xl"></fa-icon>
+                                </div>
+                                <h4 class="text-slate-900 font-extrabold tracking-tight">Historique Vierge</h4>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Aucun
+                                    mouvement détecté dans les dernières 24h</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pharmacy Info Sidecard -->
+                    <div class="auth-card !p-8">
+                        <div class="flex items-center gap-5 mb-10">
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                                <fa-icon [icon]="faStore" class="text-xl"></fa-icon>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-black tracking-tight text-slate-900">Terminal Actif</h4>
+                                <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Connecté
+                                </p>
+                            </div>
                         </div>
 
-                        <div>
-                            <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Localisation
-                            </p>
-                            <p class="text-sm font-bold tracking-tight text-slate-900">{{ pharmacy?.city || 'Non
-                                renseigné' }}</p>
-                        </div>
+                        <div class="space-y-6">
+                            <div>
+                                <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">
+                                    Administrateur</p>
+                                <p class="text-sm font-bold tracking-tight text-slate-900">{{ currentUser?.firstName }}
+                                    {{ currentUser?.lastName }}</p>
+                            </div>
 
-                        <div>
-                            <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Statut
-                                Système</p>
-                            <div class="flex items-center gap-2">
-                                <span
-                                    class="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-emerald-500/20">Opérationnel</span>
+                            <div>
+                                <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">
+                                    Localisation
+                                </p>
+                                <p class="text-sm font-bold tracking-tight text-slate-900">{{ pharmacy?.city || 'Non
+                                    renseigné' }}</p>
+                            </div>
+
+                            <div>
+                                <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Statut
+                                    Système</p>
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-emerald-500/20">Opérationnel</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -297,4 +322,3 @@
             </div>
         </div>
     </div>
-</div>

@@ -45,6 +45,7 @@ export class MedicationCatalogComponent implements OnInit {
     selectedMedication: CatalogMedication | null = null;
     addPrice = 0;
     addStock = 0;
+    addExpiryDate = '';
     isAdding = false;
 
     // Modal de création de médicament
@@ -64,10 +65,14 @@ export class MedicationCatalogComponent implements OnInit {
     therapeuticClasses = [
         'ANTALGIQUE',
         'ANTIBIOTIQUE',
-        'ANTIHISTAMINIQUE',
+        'ANTIPALUDEEN',
         'ANTIHYPERTENSEUR',
+        'ANTIINFLAMMATOIRE',
+        'ANTIDIABETIQUE',
+        'ANTIHISTAMINIQUE',
         'ANTIPYRETIQUE',
-        'ANTIINFLAMMATOIRE'
+        'VITAMINE',
+        'AUTRE'
     ];
 
     constructor(
@@ -168,7 +173,8 @@ export class MedicationCatalogComponent implements OnInit {
             this.pharmacyId,
             this.selectedMedication.id,
             this.addPrice,
-            this.addStock
+            this.addStock,
+            this.addExpiryDate
         ).subscribe({
             next: () => {
                 alert(`${this.selectedMedication!.name} ajouté à votre inventaire !`);

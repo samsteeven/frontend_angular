@@ -54,7 +54,6 @@ import {
 
       <!-- Notifications -->
       <div *ngIf="notification" 
-           [@fadeIn]
            [ngClass]="{
              'bg-emerald-50 text-emerald-800 border-emerald-100': notification.type === 'success',
              'bg-rose-50 text-rose-800 border-rose-100': notification.type === 'error'
@@ -190,12 +189,12 @@ import {
               <form [formGroup]="inventoryForm" (ngSubmit)="onSubmit()" class="space-y-6">
                 <div>
                   <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Nom du produit</label>
-                  <input type="text" formControlName="name" class="form-input !py-3 font-bold" placeholder="Nom du médicament">
+                  <input type="text" formControlName="name" readonly class="form-input !py-3 font-bold bg-slate-50 cursor-not-allowed" placeholder="Nom du médicament">
                 </div>
 
                 <div>
                   <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Fabricant / Laboratoire</label>
-                  <input type="text" formControlName="manufacturer" class="form-input !py-3 font-bold" placeholder="Labo">
+                  <input type="text" formControlName="manufacturer" readonly class="form-input !py-3 font-bold bg-slate-50 cursor-not-allowed" placeholder="Labo">
                 </div>
 
                 <div class="grid grid-cols-2 gap-6">
@@ -210,6 +209,16 @@ import {
                 </div>
 
                 <div>
+                  <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Date d'expiration</label>
+                  <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors">
+                      <fa-icon [icon]="faCalendarAlt" class="text-slate-400 group-focus-within:text-indigo-500 text-sm"></fa-icon>
+                    </div>
+                    <input type="date" formControlName="expiryDate" class="form-input !pl-11 !py-3 font-bold">
+                  </div>
+                </div>
+
+                <div>
                   <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Description</label>
                   <textarea formControlName="description" rows="3" class="form-input" placeholder="Notes..."></textarea>
                 </div>
@@ -218,7 +227,8 @@ import {
                   <button type="button" (click)="closeModal()" class="flex-1 px-6 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-100 transition-all">
                     Annuler
                   </button>
-                  <button type="submit" [disabled]="inventoryForm.invalid || isSaving" class="flex-[2] btn-primary !py-3.5 shadow-lg shadow-indigo-100">
+                  <button type="submit" [disabled]="inventoryForm.invalid || isSaving" 
+                          class="flex-[2] btn-primary !py-3.5 shadow-lg shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed">
                     <span *ngIf="!isSaving">Enregistrer les modifications</span>
                     <span *ngIf="isSaving" class="flex items-center gap-2">
                       <fa-icon [icon]="faCircleNotch" animation="spin"></fa-icon> En cours...
@@ -268,12 +278,12 @@ export class InventoryManagementComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.inventoryForm = this.fb.group({
-      name: ['', Validators.required],
-      manufacturer: ['', Validators.required],
+      name: [''],
+      manufacturer: [''],
       description: [''],
       price: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.required, Validators.min(0)]],
-      expiryDate: ['', Validators.required],
+      expiryDate: [''],
       category: ['']
     });
   }
@@ -338,11 +348,14 @@ export class InventoryManagementComponent implements OnInit {
   }
 
   onSubmit(): void {
+    console.log('Submit clicked. Form valid:', this.inventoryForm.valid, 'Form value:', this.inventoryForm.value);
+
     if (this.inventoryForm.valid) {
       this.isSaving = true;
       const formValue = this.inventoryForm.value;
 
       if (this.isEditing && this.selectedMedication) {
+        console.log('Attempting update for medicationId:', this.selectedMedication.id);
         this.inventoryService.updateMedication(this.pharmacyId, this.selectedMedication.id, formValue).subscribe({
           next: (updatedMed) => {
             this.isSaving = false;

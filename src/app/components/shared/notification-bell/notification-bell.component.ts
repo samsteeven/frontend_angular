@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService, Notification } from '../../../services/notification.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -18,7 +18,9 @@ import { faBell, faShoppingCart, faTruck, faBoxes, faInfoCircle } from '@fortawe
         </span>
       </button>
 
-      <div *ngIf="isOpen" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+      <div *ngIf="isOpen" 
+           [ngClass]="position === 'right' ? 'right-0' : 'left-0 ml-2'"
+           class="absolute mt-2 w-80 bg-white rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
         <div class="p-4 border-b">
           <div class="flex justify-between items-center">
             <h3 class="font-semibold">Notifications</h3>
@@ -52,6 +54,7 @@ import { faBell, faShoppingCart, faTruck, faBoxes, faInfoCircle } from '@fortawe
   `
 })
 export class NotificationBellComponent implements OnInit {
+  @Input() position: 'left' | 'right' = 'right';
   faBell = faBell;
   notifications: Notification[] = [];
   unreadCount = 0;

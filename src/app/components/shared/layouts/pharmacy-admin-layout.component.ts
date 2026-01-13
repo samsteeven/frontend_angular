@@ -65,7 +65,7 @@ import {
               <span class="text-sm font-bold text-slate-900 tracking-tighter leading-none truncate max-w-[140px]">{{ pharmacyName || 'Pharmacy' }}</span>
             </div>
           </div>
-          <app-notification-bell class="hidden md:block"></app-notification-bell>
+          <app-notification-bell position="left" class="hidden md:block"></app-notification-bell>
         </div>
 
         <!-- Semantic Navigation -->

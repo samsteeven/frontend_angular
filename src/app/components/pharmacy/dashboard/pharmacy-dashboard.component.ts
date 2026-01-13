@@ -46,6 +46,7 @@ export class PharmacyDashboardComponent implements OnInit {
     monthlyRevenue = 0;
     activeDeliveriesCount = 0;
     lowStockCount = 0;
+    expiringSoonCount = 0;
 
     constructor(
         private authService: AuthService,
@@ -211,6 +212,16 @@ export class PharmacyDashboardComponent implements OnInit {
             next: (inventory) => {
                 // Threshold for low stock is 5
                 this.lowStockCount = inventory.filter(i => i.stock > 0 && i.stock < 5).length;
+
+                // Threshold for expiring soon is 90 days
+                const ninetyDaysFromNow = new Date();
+                ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
+
+                this.expiringSoonCount = inventory.filter(i => {
+                    if (!i.expiryDate) return false;
+                    const expiryDate = new Date(i.expiryDate);
+                    return expiryDate > new Date() && expiryDate <= ninetyDaysFromNow;
+                }).length;
             },
             error: (err) => {
                 console.error('Error loading inventory stats', err);

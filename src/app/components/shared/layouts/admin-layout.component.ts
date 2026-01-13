@@ -39,7 +39,7 @@ import { NotificationBellComponent } from '../notification-bell/notification-bel
             <i class="fas fa-heartbeat text-2xl"></i>
             <span class="text-xl font-bold tracking-tight text-gray-900">EasyPharma</span>
           </div>
-          <app-notification-bell></app-notification-bell>
+          <app-notification-bell position="left"></app-notification-bell>
         </div>
 
         <!-- Navigation -->

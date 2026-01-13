@@ -134,7 +134,12 @@
             <!-- Actions -->
             <div
                 class="px-6 py-4 bg-slate-50/30 border-t border-slate-100 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">En stock</span>
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">En stock</span>
+                    <span *ngIf="item.expiryDate" class="text-[9px] font-bold text-rose-500 uppercase tracking-tighter">
+                        Exp : {{ item.expiryDate | date:'MM/yyyy' }}
+                    </span>
+                </div>
                 <button (click)="openDetails(item)"
                     class="text-xs font-bold text-indigo-600 hover:text-indigo-800 uppercase tracking-widest flex items-center gap-2 transition-colors">
                     Plus d'infos <fa-icon [icon]="faChevronDown" class="text-[8px]"></fa-icon>
@@ -195,10 +200,15 @@
                                     class="text-sm ml-1 text-emerald-500">XAF</span>
                             </div>
                         </div>
-                        <div class="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100">
+                        <div
+                            class="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100 flex flex-col justify-center">
                             <p class="text-[10px] font-bold text-indigo-600 uppercase tracking-[0.2em] mb-1">
                                 Disponibilité</p>
                             <div class="text-xl font-bold text-indigo-700 tracking-tight">En Stock</div>
+                            <div *ngIf="selectedResult.expiryDate"
+                                class="text-[10px] font-bold text-rose-500 uppercase mt-1">
+                                Expire le : {{ selectedResult.expiryDate | date:'mediumDate' }}
+                            </div>
                         </div>
                     </div>
 
