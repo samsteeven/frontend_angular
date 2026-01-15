@@ -13,6 +13,10 @@ export class PharmacyService {
         return this.http.get<Pharmacy[]>(this.apiUrl);
     }
 
+    getAllForAdmin(): Observable<Pharmacy[]> {
+        return this.http.get<Pharmacy[]>(`${this.apiUrl}/admin/all`);
+    }
+
     create(data: any): Observable<Pharmacy> {
         return this.http.post<Pharmacy>(this.apiUrl, data);
     }
