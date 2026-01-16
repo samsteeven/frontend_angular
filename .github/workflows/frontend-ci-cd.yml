@@ -21,11 +21,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-<<<<<<< HEAD
-        run: npm ci
-=======
         run: npm ci --legacy-peer-deps
->>>>>>> 7e5951dbdbd4b0de4b81e4a5e96e4d012ceb056c
 
       - name: Run Angular tests
         run: npm test -- --watch=false --browsers=ChromeHeadlessCI || echo "Tests skipped"
