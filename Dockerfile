@@ -17,17 +17,8 @@ FROM nginx:alpine
 # Copy static files to nginx
 COPY --from=build /app/dist/medi-find/browser /usr/share/nginx/html
 
-# Copy custom nginx config if needed (optional, for SPA routing)
-RUN echo 'server { \
-    listen 80; \
-    server_name localhost; \
-    location / { \
-    root /usr/share/nginx/html; \
-    index index.html index.htm; \
-    try_files $uri $uri/ /index.html; \
-    } \
-    }' > /etc/nginx/conf.d/default.conf
+# Copie de la config Nginx perso
+COPY default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
