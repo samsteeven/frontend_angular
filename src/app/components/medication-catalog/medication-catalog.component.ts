@@ -2,6 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {
+    faPlus, faArrowLeft, faSearch, faFilter,
+    faPrescription, faCapsules, faTimes, faChevronDown,
+    faCircleNotch, faPills, faFileUpload, faFileMedical
+} from '@fortawesome/free-solid-svg-icons';
 import { MedicationCatalogService, CatalogMedication } from '../../services/medication-catalog.service';
 import { InventoryService } from '../../services/inventory.service';
 import { AuthService } from '../../services/auth.service';
@@ -9,10 +15,23 @@ import { AuthService } from '../../services/auth.service';
 @Component({
     selector: 'app-medication-catalog',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, FontAwesomeModule],
     templateUrl: './medication-catalog.component.html'
 })
 export class MedicationCatalogComponent implements OnInit {
+    faPlus = faPlus;
+    faArrowLeft = faArrowLeft;
+    faSearch = faSearch;
+    faFilter = faFilter;
+    faPrescription = faPrescription;
+    faCapsules = faCapsules;
+    faTimes = faTimes;
+    faChevronDown = faChevronDown;
+    faCircleNotch = faCircleNotch;
+    faPills = faPills;
+    faFileUpload = faFileUpload;
+    faFileMedical = faFileMedical;
+
     medications: CatalogMedication[] = [];
     loading = false;
 
@@ -26,6 +45,7 @@ export class MedicationCatalogComponent implements OnInit {
     selectedMedication: CatalogMedication | null = null;
     addPrice = 0;
     addStock = 0;
+    addExpiryDate = '';
     isAdding = false;
 
     // Modal de création de médicament
@@ -45,10 +65,14 @@ export class MedicationCatalogComponent implements OnInit {
     therapeuticClasses = [
         'ANTALGIQUE',
         'ANTIBIOTIQUE',
-        'ANTIHISTAMINIQUE',
+        'ANTIPALUDEEN',
         'ANTIHYPERTENSEUR',
+        'ANTIINFLAMMATOIRE',
+        'ANTIDIABETIQUE',
+        'ANTIHISTAMINIQUE',
         'ANTIPYRETIQUE',
-        'ANTIINFLAMMATOIRE'
+        'VITAMINE',
+        'AUTRE'
     ];
 
     constructor(
@@ -149,7 +173,8 @@ export class MedicationCatalogComponent implements OnInit {
             this.pharmacyId,
             this.selectedMedication.id,
             this.addPrice,
-            this.addStock
+            this.addStock,
+            this.addExpiryDate
         ).subscribe({
             next: () => {
                 alert(`${this.selectedMedication!.name} ajouté à votre inventaire !`);

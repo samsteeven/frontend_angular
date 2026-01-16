@@ -55,4 +55,10 @@ export class AdminService {
     moderateReview(reviewId: string, status: 'APPROVED' | 'REJECTED'): Observable<any> {
         return this.http.patch<any>(`/api/v1/reviews/${reviewId}/status?status=${status}`, {});
     }
+
+    exportGlobalReport(): Observable<Blob> {
+        return this.http.get(`/api/v1/admin/dashboard/report`, {
+            responseType: 'blob'
+        });
+    }
 }

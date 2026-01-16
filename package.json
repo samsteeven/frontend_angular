@@ -6,7 +6,8 @@
     "start": "ng serve --host 0.0.0.0 --port 4210",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "sonar": "sonar-scanner"
   },
   "prettier": {
     "printWidth": 100,
@@ -23,13 +24,13 @@
   "private": true,
   "packageManager": "npm@10.9.3",
   "dependencies": {
-    "@angular/animations": "^21.0.5",
-    "@angular/common": "^21.0.0",
-    "@angular/compiler": "^21.0.0",
-    "@angular/core": "^21.0.0",
-    "@angular/forms": "^21.0.1",
-    "@angular/platform-browser": "^21.0.0",
-    "@angular/router": "^21.0.0",
+    "@angular/animations": "^21.0.8",
+    "@angular/common": "^21.0.8",
+    "@angular/compiler": "^21.0.8",
+    "@angular/core": "^21.0.8",
+    "@angular/forms": "^21.0.8",
+    "@angular/platform-browser": "^21.0.8",
+    "@angular/router": "^21.0.8",
     "@fortawesome/angular-fontawesome": "^4.0.0",
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
     "@fortawesome/free-brands-svg-icons": "^7.1.0",
@@ -39,13 +40,16 @@
     "zone.js": "^0.16.0"
   },
   "devDependencies": {
-    "@angular/build": "^21.0.1",
-    "@angular/cli": "^21.0.1",
-    "@angular/compiler-cli": "^21.0.0",
+    "@angular/build": "^21.0.8",
+    "@angular/cli": "^21.0.8",
+    "@angular/compiler-cli": "^21.0.8",
+    "@angular/platform-browser-dynamic": "^21.0.8",
     "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^25.0.6",
     "autoprefixer": "^10.4.22",
     "jsdom": "^27.1.0",
     "postcss": "^8.5.6",
+    "sonar-scanner": "^3.1.0",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"

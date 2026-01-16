@@ -94,7 +94,7 @@ export class PharmacyApprovalComponent implements OnInit {
   }
 
   loadPharmacies(): void {
-    this.pharmacyService.getAll().subscribe({
+    this.pharmacyService.getAllForAdmin().subscribe({
       next: (data) => {
         this.pharmacies = data;
         this.applyFilter();

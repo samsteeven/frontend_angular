@@ -13,8 +13,9 @@ export const pharmacyStaffGuard: CanActivateFn = (route, state) => {
         });
     }
 
-    // Check if user is pharmacy staff (admin or employee)
-    if (authService.isPharmacyStaff()) {
+    // Check if user is pharmacy staff (admin, employee, or delivery)
+    const role = authService.getCurrentRole();
+    if (role === 'PHARMACY_ADMIN' || role === 'PHARMACY_EMPLOYEE' || role === 'DELIVERY') {
         return true;
     }
 

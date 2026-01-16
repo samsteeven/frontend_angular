@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@services';
+import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NotificationBellComponent],
   template: `
     <div class="min-h-screen bg-gray-100">
       
@@ -16,9 +17,12 @@ import { AuthService } from '@services';
           <i class="fas fa-heartbeat text-2xl"></i>
           <span class="text-xl font-bold tracking-tight text-gray-900">EasyPharma</span>
         </div>
-        <button (click)="toggleSidebar()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
-          <i class="fas" [ngClass]="isSidebarOpen ? 'fa-times' : 'fa-bars'"></i>
-        </button>
+        <div class="flex items-center gap-4">
+          <app-notification-bell></app-notification-bell>
+          <button (click)="toggleSidebar()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+            <i class="fas" [ngClass]="isSidebarOpen ? 'fa-times' : 'fa-bars'"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Sidebar Backdrop (Mobile) -->
@@ -30,11 +34,12 @@ import { AuthService } from '@services';
              class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0">
         
         <!-- Logo (Desktop) -->
-        <div class="hidden md:flex h-16 items-center px-6 border-b border-gray-200">
+        <div class="hidden md:flex h-16 items-center px-6 border-b border-gray-200 justify-between">
           <div class="flex items-center gap-2 text-blue-600">
             <i class="fas fa-heartbeat text-2xl"></i>
             <span class="text-xl font-bold tracking-tight text-gray-900">EasyPharma</span>
           </div>
+          <app-notification-bell position="left"></app-notification-bell>
         </div>
 
         <!-- Navigation -->
@@ -73,6 +78,14 @@ import { AuthService } from '@services';
              class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-blue-600 transition-colors group">
             <i class="fas fa-coins w-5 h-5 mr-3 text-gray-400 group-hover:text-blue-500 group-[.text-blue-600]:text-blue-600 transition-colors"></i>
             Revenus & Règlements
+          </a>
+
+          <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Sécurité</p>
+
+          <a routerLink="/admin/audit-logs" routerLinkActive="bg-blue-50 text-blue-600" (click)="closeSidebar()"
+             class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-blue-600 transition-colors group">
+            <i class="fas fa-history w-5 h-5 mr-3 text-gray-400 group-hover:text-blue-500 group-[.text-blue-600]:text-blue-600 transition-colors"></i>
+            Logs d'Audit
           </a>
         </nav>
 

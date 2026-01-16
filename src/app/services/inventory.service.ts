@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 export interface Medication {
@@ -27,6 +27,7 @@ export interface PharmacyMedication {
     price: number;
     stockQuantity: number;
     isAvailable: boolean;
+    expiryDate?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -52,7 +53,7 @@ export class InventoryService {
                     manufacturer: '', // Not provided by backend
                     price: pm.price,
                     stock: pm.stockQuantity,
-                    expiryDate: pm.updatedAt,
+                    expiryDate: pm.expiryDate || '',
                     category: pm.medication.category,
                     imageUrl: undefined
                 })))
@@ -63,11 +64,15 @@ export class InventoryService {
      * Add medication to pharmacy inventory
      * POST /api/v1/pharmacies/{pharmacyId}/medications?medicationId={medicationId}&price={price}&stock={stock}
      */
-    addMedication(pharmacyId: string, medicationId: string, price: number, stock: number): Observable<PharmacyMedication> {
-        const params = new HttpParams()
+    addMedication(pharmacyId: string, medicationId: string, price: number, stock: number, expiryDate?: string): Observable<PharmacyMedication> {
+        let params = new HttpParams()
             .set('medicationId', medicationId)
             .set('price', price.toString())
             .set('stock', stock.toString());
+
+        if (expiryDate) {
+            params = params.set('expiryDate', expiryDate);
+        }
 
         return this.http.post<PharmacyMedication>(
             `${this.apiUrl}/${pharmacyId}/medications`,
@@ -103,10 +108,22 @@ export class InventoryService {
     }
 
     /**
+     * Update medication expiry date
+     * PATCH /api/v1/pharmacies/{pharmacyId}/medications/{medicationId}/expiry?expiryDate={expiryDate}
+     */
+    updateExpiryDate(pharmacyId: string, medicationId: string, expiryDate: string): Observable<PharmacyMedication> {
+        const params = new HttpParams().set('expiryDate', expiryDate);
+        return this.http.patch<PharmacyMedication>(
+            `${this.apiUrl}/${pharmacyId}/medications/${medicationId}/expiry`,
+            null,
+            { params }
+        );
+    }
+
+    /**
      * Update full medication (for compatibility with existing component)
      */
     updateMedication(pharmacyId: string, medicationId: string, medication: Partial<Medication>): Observable<Medication> {
-        // Update stock and price separately
         const updates: Observable<any>[] = [];
 
         if (medication.stock !== undefined) {
@@ -117,20 +134,22 @@ export class InventoryService {
             updates.push(this.updatePrice(pharmacyId, medicationId, medication.price));
         }
 
-        // For now, just update stock if provided, otherwise price
-        if (medication.stock !== undefined) {
-            return this.updateStock(pharmacyId, medicationId, medication.stock).pipe(
-                map(pm => this.mapToMedication(pm))
-            );
-        } else if (medication.price !== undefined) {
-            return this.updatePrice(pharmacyId, medicationId, medication.price).pipe(
-                map(pm => this.mapToMedication(pm))
+        if (medication.expiryDate !== undefined) {
+            updates.push(this.updateExpiryDate(pharmacyId, medicationId, medication.expiryDate));
+        }
+
+        if (updates.length === 0) {
+            return this.getInventory(pharmacyId).pipe(
+                map(meds => meds.find(m => m.id === medicationId)!)
             );
         }
 
-        // Fallback: return current data
-        return this.getInventory(pharmacyId).pipe(
-            map(meds => meds.find(m => m.id === medicationId)!)
+        return forkJoin(updates).pipe(
+            map(results => {
+                // Return the last result mapped to Medication
+                const lastResult = results[results.length - 1] as PharmacyMedication;
+                return this.mapToMedication(lastResult);
+            })
         );
     }
 
@@ -162,7 +181,7 @@ export class InventoryService {
             manufacturer: '',
             price: pm.price,
             stock: pm.stockQuantity,
-            expiryDate: pm.updatedAt,
+            expiryDate: pm.expiryDate || '',
             category: pm.medication.category,
             imageUrl: undefined
         };

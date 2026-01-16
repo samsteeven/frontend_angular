@@ -30,6 +30,7 @@ import { NotFoundComponent } from '@components/errors/not-found.component';
 
 // Guards
 import { authGuard, superAdminGuard, pharmacyAdminGuard, pharmacyStaffGuard, guestGuard } from '@guards';
+import { permissionGuard } from './guards/permission.guard';
 import { InventoryManagementComponent } from '@components/pharmacy/inventory-management/inventory-management.component';
 
 export const routes: Routes = [
@@ -55,6 +56,7 @@ export const routes: Routes = [
       { path: 'pharmacies/:id', component: PharmacyDetailComponent },
       { path: 'global-search', loadComponent: () => import('./components/shared/global-medication-search/global-medication-search.component').then(m => m.GlobalMedicationSearchComponent) },
       { path: 'financial', loadComponent: () => import('./components/admin/financial-dashboard/financial-dashboard.component').then(m => m.FinancialDashboardComponent) },
+      { path: 'audit-logs', loadComponent: () => import('./components/admin/audit-logs/audit-logs.component').then(m => m.AuditLogsComponent) }
       // { path: 'clients', component: ClientsListComponent }
     ]
   },
@@ -73,7 +75,9 @@ export const routes: Routes = [
       { path: 'employees', component: EmployeeManagementComponent },
       { path: 'orders', component: OrderManagementComponent }, // Shared with staff but accessible here too
       { path: 'inventory', component: InventoryManagementComponent },
-      { path: 'settings', loadComponent: () => import('./components/pharmacy/settings/pharmacy-settings.component').then(m => m.PharmacySettingsComponent) }
+      { path: 'audit-logs', loadComponent: () => import('./components/admin/audit-logs/audit-logs.component').then(m => m.AuditLogsComponent) },
+      { path: 'settings', loadComponent: () => import('./components/pharmacy/settings/pharmacy-settings.component').then(m => m.PharmacySettingsComponent) },
+      { path: 'profile', component: ProfileComponent }
     ]
   },
 
@@ -85,15 +89,25 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: PharmacyDashboardComponent },
-      { path: 'orders', component: OrderManagementComponent },
-      { path: 'deliveries', component: DeliveryManagementComponent }
+      {
+        path: 'orders',
+        component: OrderManagementComponent,
+        canActivate: [permissionGuard('PREPARE_ORDERS')]
+      },
+      {
+        path: 'deliveries',
+        component: DeliveryManagementComponent,
+        canActivate: [permissionGuard('ASSIGN_DELIVERIES')]
+      },
+      { path: 'profile', component: ProfileComponent }
     ]
   },
 
-  // Global profile route
+  // No longer using global profile route as it breaks layout context
+
   {
-    path: 'profile',
-    component: ProfileComponent,
+    path: 'my-prescriptions',
+    loadComponent: () => import('./components/client/prescription/prescription-upload.component').then(m => m.PrescriptionUploadComponent),
     canActivate: [authGuard]
   },
 

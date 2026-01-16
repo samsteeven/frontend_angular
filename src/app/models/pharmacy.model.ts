@@ -30,5 +30,6 @@ export interface PharmacyMedicationDTO {
     description: string;
     price: number;
     stock: number;
+    expiryDate?: string;
     imageUrl?: string;
 }
