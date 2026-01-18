@@ -1,0 +1,74 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Gestion du Stock</h1>
+        <button (click)="openAddModal()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition">
+            <i class="fas fa-plus mr-2"></i> Ajouter un médicament
+        </button>
+    </div>
+
+    <!-- Search -->
+    <div class="mb-6 relative">
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher par nom ou catégorie..."
+            class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm">
+        <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                <tr>
+                    <th class="px-6 py-4 font-semibold">Nom</th>
+                    <th class="px-6 py-4 font-semibold">Catégorie</th>
+                    <th class="px-6 py-4 font-semibold">Prix</th>
+                    <th class="px-6 py-4 font-semibold">Stock</th>
+                    <th class="px-6 py-4 font-semibold">Statut</th>
+                    <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                <tr *ngFor="let med of filteredMedications" class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 font-medium text-gray-900">{{ med.name }}</td>
+                    <td class="px-6 py-4 text-gray-500">
+                        <span class="px-2 py-1 bg-gray-100 rounded-md text-xs">{{ med.category }}</span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-900">{{ med.price | currency:'EUR' }}</td>
+                    <td class="px-6 py-4">
+                        <span [ngClass]="{'text-red-600 font-bold': med.stock < 10, 'text-gray-900': med.stock >= 10}">
+                            {{ med.stock }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span *ngIf="med.stock > 10"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            En Stock
+                        </span>
+                        <span *ngIf="med.stock <= 10 && med.stock > 0"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Faible
+                        </span>
+                        <span *ngIf="med.stock === 0"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Rupture
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <button (click)="editMedication(med)" class="text-blue-600 hover:text-blue-900 p-1">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button (click)="deleteMedication(med.id)" class="text-red-600 hover:text-red-900 p-1">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+
+                <tr *ngIf="filteredMedications.length === 0">
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        Aucun médicament trouvé.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

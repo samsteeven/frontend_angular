@@ -32,6 +32,7 @@ import { NotFoundComponent } from '@components/errors/not-found.component';
 import { authGuard, superAdminGuard, pharmacyAdminGuard, pharmacyStaffGuard, guestGuard } from '@guards';
 import { permissionGuard } from './guards/permission.guard';
 import { InventoryManagementComponent } from '@components/pharmacy/inventory-management/inventory-management.component';
+import { StockManagementComponent } from '@components/admin/stock-management/stock-management'; // Fixed import path
 
 export const routes: Routes = [
   // Default route - redirect to login
@@ -54,6 +55,8 @@ export const routes: Routes = [
       { path: 'users', component: UsersListComponent },
       { path: 'pharmacies', component: PharmacyApprovalComponent },
       { path: 'pharmacies/:id', component: PharmacyDetailComponent },
+      { path: 'stock', component: StockManagementComponent },
+      { path: 'orders-kanban', loadComponent: () => import('./components/admin/order-kanban/order-kanban').then(m => m.OrderKanbanComponent) }, // Fixed import path
       { path: 'global-search', loadComponent: () => import('./components/shared/global-medication-search/global-medication-search.component').then(m => m.GlobalMedicationSearchComponent) },
       { path: 'financial', loadComponent: () => import('./components/admin/financial-dashboard/financial-dashboard.component').then(m => m.FinancialDashboardComponent) },
       { path: 'audit-logs', loadComponent: () => import('./components/admin/audit-logs/audit-logs.component').then(m => m.AuditLogsComponent) }
