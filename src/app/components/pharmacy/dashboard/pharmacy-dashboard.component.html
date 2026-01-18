@@ -199,6 +199,60 @@
                     </div>
                 </div>
 
+                <!-- Analytics Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Revenue Evolution -->
+                    <div class="lg:col-span-2 auth-card !p-0 overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 tracking-tight">Analyse des Revenus</h3>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                    Évolution sur les 30 derniers jours</p>
+                            </div>
+                            <fa-icon [icon]="faChartLine" class="text-indigo-400"></fa-icon>
+                        </div>
+                        <div class="p-6">
+                            <div class="h-72">
+                                <canvas #revenueChart></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Distribution -->
+                    <div class="auth-card !p-0 overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 tracking-tight">Flux Commandes</h3>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                    Répartition par statut</p>
+                            </div>
+                            <fa-icon [icon]="faChartPie" class="text-violet-400"></fa-icon>
+                        </div>
+                        <div class="p-6">
+                            <div class="h-72">
+                                <canvas #statusChart></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Products -->
+                    <div class="lg:col-span-3 auth-card !p-0 overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 tracking-tight">Performance Produits</h3>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Top 5
+                                    des médicaments les plus vendus</p>
+                            </div>
+                            <fa-icon [icon]="faChartBar" class="text-emerald-400"></fa-icon>
+                        </div>
+                        <div class="p-6">
+                            <div class="h-64">
+                                <canvas #productsChart></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Recent Activity & Info -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Recent Orders Table/List -->

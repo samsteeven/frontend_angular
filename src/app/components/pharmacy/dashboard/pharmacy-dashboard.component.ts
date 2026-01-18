@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
 import { PharmacyService } from '../../../services/pharmacy.service';
@@ -11,8 +11,11 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
     faCircleNotch, faClock, faTimesCircle, faExclamationTriangle,
     faPlus, faShoppingBag, faCoins, faExclamationCircle,
-    faTruck, faHistory, faStore, faCheckCircle, faInfoCircle
+    faTruck, faHistory, faStore, faCheckCircle, faInfoCircle,
+    faChartLine, faChartBar, faChartPie
 } from '@fortawesome/free-solid-svg-icons';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 @Component({
     selector: 'app-pharmacy-dashboard',
@@ -20,7 +23,11 @@ import {
     imports: [CommonModule, FontAwesomeModule, RouterLink],
     templateUrl: './pharmacy-dashboard.component.html'
 })
-export class PharmacyDashboardComponent implements OnInit {
+export class PharmacyDashboardComponent implements OnInit, AfterViewInit {
+    @ViewChild('revenueChart') revenueChartCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('productsChart') productsChartCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('statusChart') statusChartCanvas!: ElementRef<HTMLCanvasElement>;
+
     faCircleNotch = faCircleNotch;
     faClock = faClock;
     faTimesCircle = faTimesCircle;
@@ -34,6 +41,9 @@ export class PharmacyDashboardComponent implements OnInit {
     faStore = faStore;
     faCheckCircle = faCheckCircle;
     faInfoCircle = faInfoCircle;
+    faChartLine = faChartLine;
+    faChartBar = faChartBar;
+    faChartPie = faChartPie;
 
     currentUser: any = null;
     pharmacy: Pharmacy | null = null;
@@ -47,6 +57,12 @@ export class PharmacyDashboardComponent implements OnInit {
     activeDeliveriesCount = 0;
     lowStockCount = 0;
     expiringSoonCount = 0;
+
+    // Chart Data
+    dashboardStats: any = null;
+    private revenueChart: Chart | null = null;
+    private productsChart: Chart | null = null;
+    private statusChart: Chart | null = null;
 
     constructor(
         private authService: AuthService,
@@ -72,6 +88,10 @@ export class PharmacyDashboardComponent implements OnInit {
         });
 
         this.checkPharmacyStatus();
+    }
+
+    ngAfterViewInit(): void {
+        // Charts will be initialized when data arrives
     }
 
     checkPharmacyStatus(): void {
@@ -142,17 +162,130 @@ export class PharmacyDashboardComponent implements OnInit {
     }
 
     loadBackendStatistics(pharmacyId: string): void {
-        const userId = this.currentUser?.id;
-        if (!userId) return;
-
-        this.permissionService.getStatistics(userId).subscribe({
+        this.pharmacyService.getDashboardStats(pharmacyId).subscribe({
             next: (stats) => {
-                this.dailyOrdersCount = stats.dailyOrders || 0;
+                this.dashboardStats = stats;
+                this.dailyOrdersCount = stats.totalOrders || 0;
                 this.monthlyRevenue = stats.monthlyRevenue || 0;
                 this.activeDeliveriesCount = stats.activeDeliveries || 0;
-                // lowStockCount is still from local inventory check for better precision
+
+                // Initialize charts
+                this.initRevenueChart();
+                this.initProductsChart();
+                this.initStatusChart();
             },
-            error: (err) => console.error('Error loading backend stats', err)
+            error: (err) => console.error('Error loading dashboard stats', err)
+        });
+    }
+
+    private initRevenueChart(): void {
+        if (!this.revenueChartCanvas || !this.dashboardStats?.revenueEvolution) return;
+        if (this.revenueChart) this.revenueChart.destroy();
+
+        const ctx = this.revenueChartCanvas.nativeElement.getContext('2d');
+        if (!ctx) return;
+
+        this.revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: this.dashboardStats.revenueEvolution.map((d: any) => d.date),
+                datasets: [{
+                    label: 'Revenus (FCFA)',
+                    data: this.dashboardStats.revenueEvolution.map((d: any) => d.amount),
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#6366f1',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    private initProductsChart(): void {
+        if (!this.productsChartCanvas || !this.dashboardStats?.topProducts) return;
+        if (this.productsChart) this.productsChart.destroy();
+
+        const ctx = this.productsChartCanvas.nativeElement.getContext('2d');
+        if (!ctx) return;
+
+        this.productsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: this.dashboardStats.topProducts.map((p: any) => p.name),
+                datasets: [{
+                    label: 'Quantité vendue',
+                    data: this.dashboardStats.topProducts.map((p: any) => p.count),
+                    backgroundColor: '#8b5cf6',
+                    borderRadius: 6,
+                    barThickness: 20
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    private initStatusChart(): void {
+        if (!this.statusChartCanvas || !this.dashboardStats?.orderStatusDistribution) return;
+        if (this.statusChart) this.statusChart.destroy();
+
+        const ctx = this.statusChartCanvas.nativeElement.getContext('2d');
+        if (!ctx) return;
+
+        const data = this.dashboardStats.orderStatusDistribution;
+        this.statusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(data).map(s => this.formatStatus(s)),
+                datasets: [{
+                    data: Object.values(data),
+                    backgroundColor: [
+                        '#94a3b8', '#6366f1', '#f59e0b', '#10b981', '#8b5cf6', '#14b8a6', '#f43f5e'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            font: { size: 10, weight: 'bold' }
+                        }
+                    }
+                }
+            }
         });
     }
 

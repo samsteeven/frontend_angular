@@ -9,8 +9,10 @@ import {
   faSearch, faBookMedical, faEdit, faTrash,
   faPlus, faTimes, faChevronDown, faCircleNotch,
   faBoxOpen, faCheckCircle, faExclamationCircle,
-  faFlask, faBoxes, faTag, faCalendarAlt
+  faFlask, faBoxes, faTag, faCalendarAlt, faFileUpload,
+  faFileCsv
 } from '@fortawesome/free-solid-svg-icons';
+import { PharmacyService } from '../../../services/pharmacy.service';
 
 @Component({
   selector: 'app-inventory-management',
@@ -25,6 +27,12 @@ import {
           <p class="mt-1 text-slate-500 font-medium">Contrôlez vos stocks, ajustez vos prix et gérez vos produits.</p>
         </div>
         <div class="flex flex-wrap gap-4">
+          <input type="file" #fileInput (change)="onFileSelected($event)" accept=".csv" class="hidden">
+          <button type="button" (click)="fileInput.click()" [disabled]="isImporting"
+                  class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-50 hover:shadow-sm active:scale-95 transition-all duration-200">
+            <fa-icon [icon]="isImporting ? faCircleNotch : faFileUpload" [animation]="isImporting ? 'spin' : undefined" class="mr-2 text-emerald-500"></fa-icon> 
+            {{ isImporting ? 'Importation...' : 'Import CSV' }}
+          </button>
           <a routerLink="/pharmacy-admin/catalog"
              class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-50 hover:shadow-sm active:scale-95 transition-all duration-200">
             <fa-icon [icon]="faBookMedical" class="mr-2 text-indigo-500"></fa-icon> Catalogue Global
@@ -259,9 +267,12 @@ export class InventoryManagementComponent implements OnInit {
   faBoxes = faBoxes;
   faTag = faTag;
   faCalendarAlt = faCalendarAlt;
+  faFileUpload = faFileUpload;
+  faFileCsv = faFileCsv;
 
   medications: Medication[] = [];
   isLoading = false;
+  isImporting = false;
   searchTerm = '';
   pharmacyId: string = '';
 
@@ -274,6 +285,7 @@ export class InventoryManagementComponent implements OnInit {
 
   constructor(
     private inventoryService: InventoryService,
+    private pharmacyService: PharmacyService,
     private authService: AuthService,
     private fb: FormBuilder
   ) {
@@ -389,6 +401,38 @@ export class InventoryManagementComponent implements OnInit {
         }
       });
     }
+  }
+
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      if (file.name.endsWith('.csv')) {
+        this.importCsv(file);
+      } else {
+        this.showNotification('error', 'Veuillez sélectionner un fichier CSV.');
+      }
+    }
+  }
+
+  private importCsv(file: File): void {
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      const csvContent = e.target.result;
+      this.isImporting = true;
+      this.pharmacyService.importMedications(this.pharmacyId, csvContent).subscribe({
+        next: (count) => {
+          this.isImporting = false;
+          this.showNotification('success', `${count} médicaments importés avec succès.`);
+          this.loadInventory();
+        },
+        error: (err) => {
+          this.isImporting = false;
+          console.error('Import failed', err);
+          this.showNotification('error', 'Échec de l\'importation. Vérifiez le format du fichier.');
+        }
+      });
+    };
+    reader.readAsText(file);
   }
 
   showNotification(type: 'success' | 'error', message: string): void {

@@ -28,40 +28,38 @@ import {
   faChevronDown,
   faPrescription,
   faCapsules,
-  faTimes
+  faTimes,
+  faHandPointer
 } from '@fortawesome/free-solid-svg-icons';
+import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-order-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule],
+  imports: [CommonModule, FormsModule, FontAwesomeModule, DragDropModule],
   template: `
     <div class="page-bg-refined p-8 space-y-8 animate-fadeInUp">
       <!-- Header Area -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 class="text-3xl font-semibold text-slate-900 tracking-tight">Gestion des Commandes</h1>
-          <p class="mt-1 text-slate-500 font-medium tracking-tight">Suivez et traitez les commandes de médicaments en temps réel dans votre pharmacie.</p>
+          <h1 class="text-3xl font-semibold text-slate-900 tracking-tight">Flux de Commandes Kanban</h1>
+          <p class="mt-1 text-slate-500 font-medium tracking-tight">Gérez l'état des commandes par glisser-déposer pour une logistique fluide.</p>
         </div>
         
-        <!-- Status Filter Tabs -->
-        <div class="auth-card !p-1 flex bg-slate-100/50 gap-1 overflow-x-auto max-w-full">
-          <button 
-            *ngFor="let status of filterStatuses"
-            (click)="currentFilter = status; applyFilter()"
-            [class.bg-white]="currentFilter === status"
-            [class.shadow-sm]="currentFilter === status"
-            [class.text-indigo-600]="currentFilter === status"
-            [class.text-slate-500]="currentFilter !== status"
-            class="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap hover:text-indigo-500">
-            {{ formatStatus(status) }}
-          </button>
+        <div class="flex items-center gap-4">
+            <button (click)="loadOrders()" class="btn-secondary !py-2 !px-4 flex items-center gap-2">
+                <fa-icon [icon]="faHistory"></fa-icon> Rafraîchir
+            </button>
+            <div class="flex bg-slate-100 p-1 rounded-xl">
+                 <button (click)="viewMode = 'KANBAN'" [class.bg-white]="viewMode === 'KANBAN'" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Kanban</button>
+                 <button (click)="viewMode = 'LIST'" [class.bg-white]="viewMode === 'LIST'" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Liste</button>
+            </div>
         </div>
       </div>
 
       <!-- Loading State -->
       <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-24">
-        <div class="w-12 h-12 mb-4 animate-spin flex items-center justify-center text-indigo-500">
+        <div class="w-12 h-12 mb-4 animate-spin text-indigo-500">
           <fa-icon [icon]="faSpinner" class="text-4xl"></fa-icon>
         </div>
         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">Synchronisation des flux...</p>
@@ -81,114 +79,67 @@ import {
         </button>
       </div>
 
-      <!-- Main Content -->
-      <div *ngIf="!isLoading && !errorMessage" class="space-y-8">
+      <!-- Kanban View -->
+      <div *ngIf="!isLoading && viewMode === 'KANBAN' && !errorMessage" class="flex gap-6 overflow-x-auto pb-8 min-h-[70vh]" cdkDropListGroup>
         
-        <!-- Empty State -->
-        <div *ngIf="filteredOrders.length === 0" class="auth-card !py-24 flex flex-col items-center border-dashed border-2 border-slate-200 bg-transparent shadow-none">
-          <div class="icon-container-blue w-20 h-20 mb-6 !bg-slate-50 !text-slate-300">
-            <fa-icon [icon]="faBoxOpen" class="text-3xl"></fa-icon>
+        <!-- Column Template -->
+        <div *ngFor="let col of kanbanColumns" class="flex-shrink-0 w-80 flex flex-col gap-4">
+          <div class="flex items-center justify-between px-2">
+            <div class="flex items-center gap-2">
+              <span [ngClass]="getStatusColor(col.status)" class="w-2 h-2 rounded-full"></span>
+              <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{{ formatStatus(col.status) }}</h3>
+            </div>
+            <span class="bg-slate-100 text-slate-500 text-[9px] font-bold px-2 py-0.5 rounded-full">{{ col.orders.length }}</span>
           </div>
-          <h3 class="text-xl font-semibold text-slate-900 tracking-tight">Aucune commande</h3>
-          <p class="mt-2 text-slate-500 font-medium text-center max-w-sm">Il n'y a actuellement aucune commande avec le statut "{{ formatStatus(currentFilter) }}".</p>
-          <button (click)="currentFilter = 'ALL'; applyFilter()" class="mt-8 text-xs font-bold text-indigo-600 hover:text-indigo-800 uppercase tracking-widest flex items-center gap-2">
-            Voir toutes les commandes <fa-icon [icon]="faChevronRight" class="text-[8px]"></fa-icon>
-          </button>
-        </div>
 
-        <!-- Orders Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" *ngIf="filteredOrders.length > 0">
-          <div *ngFor="let order of filteredOrders" 
-               class="auth-card !p-0 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group border-transparent hover:border-indigo-100">
+          <div 
+            cdkDropList
+            [cdkDropListData]="col.orders"
+            (cdkDropListDropped)="drop($event, col.status)"
+            class="flex-1 bg-slate-50/50 rounded-2xl p-4 border border-dashed border-slate-200 min-h-[500px] transition-colors hover:bg-slate-100/30">
             
-            <!-- Order Header -->
-            <div class="p-6 bg-slate-50/50 border-b border-slate-100">
-              <div class="flex justify-between items-start gap-4">
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2">
-                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Réf.</span>
-                    <span class="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase">#{{ order.id.slice(0, 8) }}</span>
-                  </div>
-                  <div class="flex items-center gap-2 mt-2">
-                    <fa-icon [icon]="faCalendarAlt" class="text-slate-300 text-[10px]"></fa-icon>
-                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">{{ order.createdAt | date:'dd MMM yyyy, HH:mm' }}</span>
-                  </div>
-                </div>
-                <div class="text-right shrink-0">
-                  <div class="text-2xl font-bold text-slate-900 tracking-tighter">
-                    {{ order.totalAmount | currency:'XAF':'symbol':'1.0-0' }}
-                  </div>
-                  <div class="mt-2 flex justify-end">
-                    <span [ngClass]="getStatusColor(order.status)"
-                          class="inline-flex px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border">
-                      {{ formatStatus(order.status) }}
-                    </span>
-                  </div>
-                </div>
+            <div *ngFor="let order of col.orders" cdkDrag class="auth-card !p-4 mb-4 cursor-grab active:cursor-grabbing hover:shadow-lg transition-all group">
+              <div class="flex justify-between items-start mb-3">
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">#{{ order.id.slice(0, 8) }}</span>
+                <span class="text-xs font-bold text-slate-900">{{ order.totalAmount | currency:'XAF':'symbol':'1.0-0' }}</span>
               </div>
-            </div>
-
-            <!-- Items Information -->
-            <div class="p-6 space-y-4">
-              <div *ngFor="let item of order.items.slice(0, 2)" class="flex justify-between items-center bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-indigo-500 border border-slate-100 shrink-0 shadow-sm">
-                    <fa-icon [icon]="faCapsules" class="text-xs"></fa-icon>
-                  </div>
-                  <span class="text-xs font-semibold text-slate-700 truncate pr-2 tracking-tight">{{ item.medicationName || 'Pharmaceutique' }}</span>
-                </div>
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-2 py-1 rounded-md border border-slate-100">x{{ item.quantity }}</span>
-              </div>
-              <button *ngIf="order.items.length > 2" class="w-full py-2 text-[9px] font-bold text-indigo-500 uppercase tracking-[0.2em] bg-indigo-50/50 rounded-xl hover:bg-indigo-50 transition-colors">
-                + {{ order.items.length - 2 }} autres articles
-              </button>
-            </div>
-
-            <!-- Logistics Detail -->
-            <div class="px-6 py-4 bg-slate-50/30 text-[10px] text-slate-500 border-t border-slate-100 flex items-center gap-3">
-                <fa-icon [icon]="faMapMarkerAlt" class="text-slate-300 text-xs"></fa-icon>
-                <span class="truncate font-bold tracking-tight uppercase tracking-widest leading-relaxed">{{ order.deliveryAddress }}</span>
-            </div>
-
-            <!-- Smart Actions -->
-            <div class="p-6 border-t border-slate-100 flex gap-3">
-              <button class="w-12 h-12 rounded-2xl bg-slate-50 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center justify-center shrink-0">
-                <fa-icon [icon]="faEye" class="text-sm"></fa-icon>
-              </button>
               
-              <button *ngIf="order.status === 'PENDING'" 
-                      (click)="updateStatus(order, 'CONFIRMED')"
-                      [disabled]="isUpdating === order.id"
-                      class="flex-1 btn-primary !py-0 h-12 flex justify-center items-center gap-3">
-                <fa-icon [icon]="isUpdating === order.id ? faSpinner : faCheck" [animation]="isUpdating === order.id ? 'spin' : undefined"></fa-icon>
-                <span class="text-[10px] font-bold uppercase tracking-widest">Confirmer flux</span>
-              </button>
+              <div class="flex items-center gap-2 mb-3">
+                <div class="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500 text-[10px]">
+                    <fa-icon [icon]="faCapsules"></fa-icon>
+                </div>
+                <span class="text-[11px] font-semibold text-slate-700 truncate">{{ order.items[0]?.medicationName || 'Médicament' }}</span>
+              </div>
 
-              <button *ngIf="order.status === 'CONFIRMED'" 
-                      (click)="updateStatus(order, 'PREPARING')"
-                      [disabled]="isUpdating === order.id"
-                      class="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl flex justify-center items-center gap-3 transition-all shadow-lg shadow-amber-100">
-                <fa-icon [icon]="isUpdating === order.id ? faSpinner : faBoxOpen" [animation]="isUpdating === order.id ? 'spin' : undefined"></fa-icon>
-                <span class="text-[10px] font-bold uppercase tracking-widest">Préparation</span>
-              </button>
+              <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-50">
+                 <div class="flex items-center gap-2">
+                    <fa-icon [icon]="faClock" class="text-slate-300 text-[9px]"></fa-icon>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">{{ order.createdAt | date:'HH:mm' }}</span>
+                 </div>
+                 <button *ngIf="col.status === 'READY' && canAssignDeliveries" (click)="$event.stopPropagation(); openAssignModal(order)" 
+                         class="text-[8px] font-bold text-indigo-600 uppercase tracking-widest hover:text-indigo-800 flex items-center gap-1 bg-indigo-50 px-2 py-1 rounded-md">
+                    Assigner <fa-icon [icon]="faTruck" class="text-[7px]"></fa-icon>
+                 </button>
+              </div>
 
-              <button *ngIf="order.status === 'PREPARING'" 
-                      (click)="updateStatus(order, 'READY')"
-                      [disabled]="isUpdating === order.id"
-                      class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl flex justify-center items-center gap-3 transition-all shadow-lg shadow-emerald-100">
-                <fa-icon [icon]="isUpdating === order.id ? faSpinner : faCheckCircle" [animation]="isUpdating === order.id ? 'spin' : undefined"></fa-icon>
-                <span class="text-[10px] font-bold uppercase tracking-widest">Aviser Client</span>
-              </button>
-
-              <button *ngIf="order.status === 'READY' && canAssignDeliveries" 
-                      (click)="openAssignModal(order)"
-                      class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl flex justify-center items-center gap-3 transition-all shadow-lg shadow-indigo-100">
-                <fa-icon [icon]="faUserTie"></fa-icon>
-                <span class="text-[10px] font-bold uppercase tracking-widest">Livreur</span>
-              </button>
+              <!-- Drag Preview -->
+              <div *cdkDragPlaceholder class="bg-indigo-50 border-2 border-dashed border-indigo-200 h-24 rounded-2xl mb-4"></div>
+            </div>
+            
+            <!-- Empty state in col -->
+            <div *ngIf="col.orders.length === 0" class="flex flex-col items-center justify-center py-12 text-slate-300">
+                <fa-icon [icon]="faHandPointer" class="text-xl mb-2 opacity-20"></fa-icon>
+                <p class="text-[8px] font-bold uppercase tracking-widest opacity-40">Déposer ici</p>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- List View -->
+      <div *ngIf="!isLoading && viewMode === 'LIST' && !errorMessage" class="space-y-6">
+         <div class="auth-card !py-24 flex flex-col items-center border-dashed border-2 border-slate-200 bg-transparent shadow-none">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">Mode Liste Standard en cours d'optimisation...</p>
+         </div>
       </div>
 
       <!-- Delivery Assignment Modal -->
@@ -289,6 +240,10 @@ export class OrderManagementComponent implements OnInit {
   faPrescription = faPrescription;
   faCapsules = faCapsules;
   faTimes = faTimes;
+  faHandPointer = faHandPointer;
+
+  viewMode: 'KANBAN' | 'LIST' = 'KANBAN';
+  kanbanColumns: { status: string, orders: Order[] }[] = [];
 
   orders: Order[] = [];
   filteredOrders: Order[] = [];
@@ -353,6 +308,7 @@ export class OrderManagementComponent implements OnInit {
       next: (orders: Order[]) => {
         this.orders = orders;
         this.applyFilter();
+        this.generateKanbanColumns();
         this.isLoading = false;
       },
       error: (err: any) => {
@@ -361,6 +317,33 @@ export class OrderManagementComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  generateKanbanColumns(): void {
+    const statuses = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY'];
+    this.kanbanColumns = statuses.map(status => ({
+      status,
+      orders: this.orders.filter(o => o.status === status)
+    }));
+  }
+
+  drop(event: CdkDragDrop<Order[]>, newStatus: string): void {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      const order = event.previousContainer.data[event.previousIndex];
+
+      // Optmistic UI Update
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+
+      // Backend Update
+      this.updateStatus(order, newStatus);
+    }
   }
 
   applyFilter(): void {
@@ -373,39 +356,25 @@ export class OrderManagementComponent implements OnInit {
     this.filteredOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  get currentFilterValue(): string {
-    return this.currentFilter;
-  }
-
-  set currentFilterValue(val: string) {
-    this.currentFilter = val;
-    this.applyFilter();
-  }
-
-  // Helper to re-apply filter when variable changes from template
-  // Angular Change Detection handles this but simple setter is cleaner if using ngModel (we are using click handler)
-
   updateStatus(order: Order, newStatus: string): void {
-    // Cast string to OrderStatus enum if needed but simple string works often in loose TS if matching backend enum
     const statusEnum = newStatus as OrderStatus;
     this.isUpdating = order.id;
 
     this.orderService.updateStatus(order.id, statusEnum).subscribe({
       next: (updatedOrder: Order) => {
-        // Update local state
         const index = this.orders.findIndex(o => o.id === order.id);
         if (index !== -1) {
-          this.orders[index] = updatedOrder; // Assuming backend returns full updated object
-          // OR manually update if backend returns simplified
-          // this.orders[index].status = statusEnum; 
+          this.orders[index] = updatedOrder;
         }
-        this.applyFilter(); // Re-filter to move items if sort or filter depends on it
+        this.applyFilter();
+        this.generateKanbanColumns(); // Refresh columns
         this.isUpdating = null;
       },
       error: (err: any) => {
         console.error('Update failed', err);
         alert("Échec de la mise à jour du statut.");
         this.isUpdating = null;
+        this.loadOrders(); // Rollback on error
       }
     });
   }
@@ -473,7 +442,7 @@ export class OrderManagementComponent implements OnInit {
       next: () => {
         alert('Livreur assigné avec succès !');
         this.closeAssignModal();
-        this.loadOrders(); // Refresh orders
+        this.loadOrders();
         this.isAssigning = false;
       },
       error: (err) => {

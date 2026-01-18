@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 //import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
@@ -6,7 +6,9 @@ import { AuthService } from '../../../services/auth.service';
 // import { UserService } from '../../../services/user.service';
 import { AdminService } from '../../../services/admin.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCoins, faUsers, faClinicMedical, faShoppingCart, faDownload, faPills, faBoxOpen, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faUsers, faClinicMedical, faShoppingCart, faDownload, faPills, faBoxOpen, faSearch, faChartLine, faChartPie } from '@fortawesome/free-solid-svg-icons';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -14,7 +16,10 @@ import { faCoins, faUsers, faClinicMedical, faShoppingCart, faDownload, faPills,
   imports: [CommonModule, FontAwesomeModule],
   templateUrl: './admin-dashboard.component.html'
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, AfterViewInit {
+  @ViewChild('soldChart') soldChartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('trendsChart') trendsChartCanvas!: ElementRef<HTMLCanvasElement>;
+
   faCoins = faCoins;
   faUsers = faUsers;
   faClinicMedical = faClinicMedical;
@@ -23,12 +28,17 @@ export class AdminDashboardComponent implements OnInit {
   faPills = faPills;
   faBoxOpen = faBoxOpen;
   faSearch = faSearch;
+  faChartLine = faChartLine;
+  faChartPie = faChartPie;
 
   globalStats: any = null;
   topSold: any[] = [];
   topSearches: any[] = [];
   loading = false;
   currentUser: any = null;
+
+  private soldChart: Chart | null = null;
+  private trendsChart: Chart | null = null;
 
   constructor(
     private authService: AuthService,
@@ -39,6 +49,10 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+  }
+
+  ngAfterViewInit(): void {
+    // We will initialize charts after data is loaded
   }
 
   loadData(): void {
@@ -58,13 +72,100 @@ export class AdminDashboardComponent implements OnInit {
 
   loadAnalytics(): void {
     this.adminService.getTopSoldMedications().subscribe({
-      next: (data) => this.topSold = data,
+      next: (data) => {
+        this.topSold = data;
+        this.updateSoldChart();
+      },
       error: (err) => console.error('Error loading top sold', err)
     });
 
     this.adminService.getTopSearchTrends().subscribe({
-      next: (data) => this.topSearches = data,
+      next: (data) => {
+        this.topSearches = data;
+        this.updateTrendsChart();
+      },
       error: (err) => console.error('Error loading trends', err)
+    });
+  }
+
+  private updateSoldChart(): void {
+    if (!this.soldChartCanvas || this.topSold.length === 0) return;
+
+    if (this.soldChart) {
+      this.soldChart.destroy();
+    }
+
+    const ctx = this.soldChartCanvas.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    this.soldChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: this.topSold.map(i => i.medicationName),
+        datasets: [{
+          label: 'Unités vendues',
+          data: this.topSold.map(i => i.soldCount),
+          backgroundColor: '#6366f1',
+          borderRadius: 8,
+          barThickness: 24,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              display: true,
+              color: 'rgba(0,0,0,0.05)'
+            }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  private updateTrendsChart(): void {
+    if (!this.trendsChartCanvas || this.topSearches.length === 0) return;
+
+    if (this.trendsChart) {
+      this.trendsChart.destroy();
+    }
+
+    const ctx = this.trendsChartCanvas.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    this.trendsChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: this.topSearches.map(i => i.query),
+        datasets: [{
+          data: this.topSearches.map(i => i.searchCount),
+          backgroundColor: [
+            '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b', '#10b981'
+          ],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        cutout: '70%',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              usePointStyle: true,
+              font: { size: 10, weight: 'bold' }
+            }
+          }
+        }
+      }
     });
   }
 

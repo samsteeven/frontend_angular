@@ -65,4 +65,13 @@ export class PharmacyService {
     removeEmployee(pharmacyId: string, employeeId: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${pharmacyId}/employees/${employeeId}`);
     }
+
+    // Dashboard & Stats
+    getDashboardStats(pharmacyId: string): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/${pharmacyId}/dashboard/stats`);
+    }
+
+    importMedications(pharmacyId: string, csvContent: string): Observable<number> {
+        return this.http.post<number>(`${this.apiUrl}/${pharmacyId}/medications/import`, csvContent);
+    }
 }
