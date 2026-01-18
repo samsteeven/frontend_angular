@@ -1,0 +1,65 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Gestion des Commandes</h1>
+
+    <div class="flex overflow-x-auto gap-6 pb-6">
+        <!-- Columns -->
+        <div *ngFor="let col of columns" class="min-w-[300px] flex-1">
+            <div class="bg-gray-100 p-4 rounded-xl h-full border border-gray-200">
+
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-700">{{ col.label }}</h3>
+                    <span class="bg-white px-2 py-1 rounded-md text-sm font-bold shadow-sm">
+                        {{ getOrdersByStatus(col.status).length }}
+                    </span>
+                </div>
+
+                <!-- Cards Container -->
+                <div class="space-y-3">
+                    <div *ngFor="let order of getOrdersByStatus(col.status)"
+                        class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-mono text-gray-500">{{ order.id }}</span>
+                            <span class="text-xs text-gray-400">{{ order.time }}</span>
+                        </div>
+
+                        <h4 class="font-semibold text-gray-800 mb-1">{{ order.customerName }}</h4>
+
+                        <div class="flex justify-between text-sm text-gray-600 mb-3">
+                            <span>{{ order.itemsCount }} articles</span>
+                            <span class="font-bold">{{ order.total | currency:'EUR' }}</span>
+                        </div>
+
+                        <!-- Actions based on status -->
+                        <div class="pt-2 border-t border-gray-50 flex justify-end">
+
+                            <button *ngIf="col.status === 'PENDING'" (click)="moveStatus(order, 'PAID')"
+                                class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition">
+                                Marquer Payée
+                            </button>
+
+                            <button *ngIf="col.status === 'PAID'" (click)="moveStatus(order, 'PREPARING')"
+                                class="text-xs bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 transition">
+                                Préparer
+                            </button>
+
+                            <button *ngIf="col.status === 'PREPARING'" (click)="moveStatus(order, 'READY')"
+                                class="text-xs bg-green-50 text-green-600 px-2 py-1 rounded hover:bg-green-100 transition font-bold">
+                                Valider Préparation
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div *ngIf="getOrdersByStatus(col.status).length === 0"
+                        class="text-center py-8 text-gray-400 text-sm italic">
+                        Aucune commande
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

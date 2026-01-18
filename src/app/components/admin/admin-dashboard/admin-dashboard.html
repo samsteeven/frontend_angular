@@ -1,0 +1,66 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <h1 class="text-3xl font-bold text-gray-800 mb-8">Tableau de Bord Pharmacie</h1>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- CA Journalier -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
+      <div class="p-4 bg-blue-100 rounded-lg text-blue-600 mr-4">
+        <i class="fas fa-euro-sign text-2xl"></i>
+      </div>
+      <div>
+        <p class="text-gray-500 text-sm">Chiffre d'Affaires (Jour)</p>
+        <p class="text-2xl font-bold text-gray-800">{{ dailyTurnover | currency:'EUR' }}</p>
+      </div>
+    </div>
+
+    <!-- Commandes en Attente -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
+      <div class="p-4 bg-orange-100 rounded-lg text-orange-600 mr-4">
+        <i class="fas fa-clock text-2xl"></i>
+      </div>
+      <div>
+        <p class="text-gray-500 text-sm">Commandes en Attente</p>
+        <p class="text-2xl font-bold text-gray-800">{{ pendingOrders }}</p>
+      </div>
+    </div>
+
+    <!-- Stock Faible -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
+      <div class="p-4 bg-red-100 rounded-lg text-red-600 mr-4">
+        <i class="fas fa-exclamation-triangle text-2xl"></i>
+      </div>
+      <div>
+        <p class="text-gray-500 text-sm">Rupture / Stock Faible</p>
+        <p class="text-2xl font-bold text-gray-800">{{ lowStockItems }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Revenue Chart -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <h2 class="text-xl font-semibold mb-4 text-gray-700">Évolution du CA</h2>
+      <div class="h-64">
+        <canvas baseChart
+          [data]="revenueChartData"
+          [options]="revenueChartOptions"
+          [type]="'line'">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Top Products Chart -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <h2 class="text-xl font-semibold mb-4 text-gray-700">Top Ventes</h2>
+      <div class="h-64">
+        <canvas baseChart
+          [data]="productsChartData"
+          [options]="productsChartOptions"
+          [type]="'bar'">
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>
